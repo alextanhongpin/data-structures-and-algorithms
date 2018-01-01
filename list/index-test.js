@@ -1,0 +1,20 @@
+const List = require('./index')
+
+const list = new List()
+list.append('john')
+list.append('doe')
+console.log(list.toString())
+list.remove('john')
+console.log(list.toString())
+list.append('bary')
+list.append('car')
+console.log(list.toString())
+list.insert('bar', 'bary')
+list.insert('1', 'doe')
+console.log(list.toString())
+// list.clear()
+// console.log(list.toString())
+for (list.front(); list.currPos() < list.length(); list.next()) {
+  console.log(list.currPos(), list.length())
+  console.log(list.getElement())
+}
