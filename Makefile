@@ -12,3 +12,6 @@ test-linked-list:
 
 test-dictionaries:
 	node dictionaries/index-test.js
+
+test-binary-tree:
+	node binary-tree/index-test.js
