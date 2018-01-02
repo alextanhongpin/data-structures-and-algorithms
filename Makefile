@@ -18,3 +18,6 @@ test-hash-table:
 
 test-set:
 	node sets/index-test.js
+
+test-binary-tree:
+	node binary-tree/index-test.js
