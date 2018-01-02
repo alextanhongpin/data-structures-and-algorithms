@@ -12,3 +12,9 @@ test-linked-list:
 
 test-dictionaries:
 	node dictionaries/index-test.js
+
+test-hash-table:
+	node hashing/index-test.js
+
+test-set:
+	node sets/index-test.js
