@@ -11,6 +11,7 @@ class Graph {
     this.edges = 0
     this.adj = []
     this.edgeTo = []
+    this.vertexList = []
 
     // For each vertices, initialize an empty dictionary with empty string
     for (let i = 0; i < this.vertices; i += 1) {
@@ -48,10 +49,10 @@ class Graph {
     if (this.adj[v] !== undefined) {
       console.log('Visited vertex:', v)
     }
-    for (const w in this.adj[v]) {
-      const wi = parseInt(w, 10)
-      if (!this.marked[wi]) {
-        this.dfs(wi)
+    for (const key in this.adj[v]) {
+      const w = this.adj[v][key]
+      if (!this.marked[w]) {
+        this.dfs(w)
       }
     }
   }
@@ -68,12 +69,12 @@ class Graph {
         console.log('Visited vertex:', v)
       }
 
-      for (const w in this.adj[v]) {
-        const wi = parseInt(w, 10)
-        if (!this.marked[wi]) {
-          this.edgeTo[wi] = v
-          this.marked[wi] = true
-          queue.unshift(wi)
+      for (const key in this.adj[v]) {
+        const w = this.adj[v][key]
+        if (!this.marked[w]) {
+          this.edgeTo[w] = v
+          this.marked[w] = true
+          queue.unshift(w)
         }
       }
     }
@@ -82,7 +83,6 @@ class Graph {
   pathTo (v) {
     let source = 0
     if (!this.hasPathTo(v)) {
-      console.log('no path', this.hasPathTo(v), v)
       return undefined
     }
     const path = []
@@ -97,7 +97,36 @@ class Graph {
     return this.marked[v]
   }
 
-  toString () {}
+  // Topological sorting
+  topSort () {
+    const stack = []
+    const visited = []
+    for (let i = 0; i < this.vertices; i += 1) {
+      visited[i] = false
+    }
+
+    for (let i = 0; i < this.vertices; i += 1) {
+      if (visited[i] === false) {
+        this.topSortHelper(i, visited, stack)
+      }
+    }
+
+    for (let i = 0; i < stack.length; i += 1) {
+      if (stack[i] !== undefined && stack[i] !== false) {
+        console.log(this.vertexList[stack[i]])
+      }
+    }
+  }
+
+  topSortHelper (v, visited, stack) {
+    visited[v] = true
+    for (const w in this.adj[v]) {
+      if (!visited[this.adj[v][w]]) {
+        this.topSortHelper(visited[this.adj[v][w]], visited, stack)
+      }
+    }
+    stack.push(v)
+  }
 }
 
 module.exports = Graph
