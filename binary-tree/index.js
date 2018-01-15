@@ -15,6 +15,7 @@ class BinarySearchTree {
   constructor () {
     this.root = null
   }
+
   insert (data) {
     const n = new Node(data, null, null)
     if (!this.root) {
@@ -72,6 +73,7 @@ class BinarySearchTree {
       console.log(node.show())
     }
   }
+
   getMin () {
     let current = this.root
     while (current.left) {
@@ -79,6 +81,7 @@ class BinarySearchTree {
     }
     return current.data
   }
+
   getMax () {
     let current = this.root
     while (current.right) {
@@ -86,6 +89,7 @@ class BinarySearchTree {
     }
     return current.data
   }
+
   find (data) {
     let current = this.root
     while (current.data !== data) {
@@ -100,14 +104,50 @@ class BinarySearchTree {
     }
     return current
   }
+
   update (data) {
     const grade = this.find(data)
     grade.count += 1
     return grade
   }
-  // remove(data) {
-  //   this.removeNode(this.root, data)
-  // }
+
+  remove (data) {
+    this.removeNode(this.root, data)
+  }
+
+  removeNode (node, data) {
+    if (node === null) {
+      return null
+    }
+
+    if (data === node.data) {
+      // Node has no children
+      if (node.left === null && node.right === null) {
+        return null
+      }
+      // Node has no left child
+      if (node.left === null) {
+        return node.right
+      }
+
+      // Node has no right child
+      if (node.right === null) {
+        return node.left
+      }
+
+      // Node has two children
+      const tempNode = this.getMin(node.right)
+      node.data = tempNode.data
+      node.right = this.removeNode(node.right, tempNode.data)
+      return node
+    } else if (data < node.data) {
+      node.left = this.removeNode(node.left, data)
+      return node
+    } else {
+      node.right = this.removeNode(node.right, data)
+      return node
+    }
+  }
 }
 
 module.exports = BinarySearchTree
