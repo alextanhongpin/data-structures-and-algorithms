@@ -1,0 +1,15 @@
+{"compile":[
+["/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/fib_fib.c", "clang -c  -w  -I/Users/alextanhongpin/.choosenim/toolchains/nim-0.18.0/lib -o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/fib_fib.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/fib_fib.c"]
+],
+"link":[
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/fib_fib.o",
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_system.o",
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_tables.o",
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_hashes.o",
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_math.o",
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_strutils.o",
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_parseutils.o",
+"/Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_algorithm.o"
+],
+"linkcmd": "clang   -o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/fib  /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/fib_fib.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_system.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_tables.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_hashes.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_math.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_strutils.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_parseutils.o /Users/alextanhongpin/Documents/architecture/data-structures-and-algorithms/fibonacci/nim/src/nimcache/stdlib_algorithm.o  -lm   -ldl"
+}
