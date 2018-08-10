@@ -12,4 +12,9 @@ The greater the Levenshtein distance, the more different the strings are.
 
 ## The algorithm
 
+## TODOS
 
+- Smith-Waterman algorithm
+- Hamming distance
+- Hirschberg's algorithm
+- Most frequent k character

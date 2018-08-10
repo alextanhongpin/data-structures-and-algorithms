@@ -1,6 +1,10 @@
 const assert = require('assert')
 
 function main() {
+  console.time('naiveLevenshtein')
+  assert.equal(naiveLevenshtein('sitting', 'sitting'.length, 'kitten', 'kitten'.length), 3)
+  console.timeEnd('naiveLevenshtein')
+
   console.time('levenshtein')
   assert.equal(levenshtein('sitting', 'kitten'), 3)
   console.timeEnd('levenshtein')
@@ -8,6 +12,22 @@ function main() {
   console.time('levenshteinOptimized')
   assert.equal(levenshteinOptimized('sitting', 'kitten'), 3)
   console.timeEnd('levenshteinOptimized')
+}
+
+
+function naiveLevenshtein(s, m, t, n) {
+  // let m = s.length
+  // let n = t.length
+
+  if (!m) return n
+  if (!n) return m
+  
+  let cost = !(s[m - 1] === t[n - 1])
+  return Math.min(
+    naiveLevenshtein(s, m - 1, t, n) + 1,
+    naiveLevenshtein(s, m, t, n - 1) + 1,
+    naiveLevenshtein(s, m - 1, t, n - 1) + cost
+  )
 }
 
 function levenshtein(s, t) {
