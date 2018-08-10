@@ -22,17 +22,14 @@ function main() {
     d[0][j] = -j
   }
 
-  console.log(d)
   for (let i = 1; i < n; i += 1) {
     for (let j = 1; j < m; j += 1) {
       let similarity = s[i - 1] === t[j - 1] ? 1 : -1
-      console.log('similarity', s[i], t[j], similarity)
       d[i][j] = Math.max(
         d[i - 1][j - 1] + similarity,
         d[i][j - 1] - 1,
         d[i - 1][j] - 1
       )
-      console.log(d[i][j])
     }
   }
   console.log(d, d[n - 1][m - 1])
