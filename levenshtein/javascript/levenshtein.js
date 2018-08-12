@@ -1,5 +1,6 @@
 const assert = require('assert')
 
+// Based on wikipedia's example
 function main() {
   console.time('naiveLevenshtein')
   assert.equal(naiveLevenshtein('sitting', 'sitting'.length, 'kitten', 'kitten'.length), 3)
@@ -76,7 +77,8 @@ function levenshteinOptimized(s, t) {
       let substitutionCost = s[i] === t[j] ? v0[j] : v0[j] + 1
       v1[j + 1] = Math.min(deletionCost, insertionCost, substitutionCost)
     }
-    v0 = [...v1]
+    v0 = v1
+    v1 = Array(n + 1).fill(0)
   } 
   return v0[n]
 }
