@@ -9,3 +9,4 @@ https://www.dyclassroom.com/graph/detecting-negative-cycle-using-bellman-ford-al
 https://www.dailycodingproblem.com/blog/how-to-find-arbitrage-opportunities-in-python/
 
 https://priceonomics.com/jobs/puzzle/
+
