@@ -1,4 +1,5 @@
 import math
+
 def main():
     dataset = [[1, 1, 'yes'],
                [1, 1, 'yes'],
@@ -15,6 +16,7 @@ def main():
     tree = create_tree(dataset, labels)
     print(tree)
 
+# Entropy is the expected value of the information
 def entropy(dataset):
     n = len(dataset)
     labels = {}
