@@ -34,15 +34,19 @@ console.log()
 // function breadthFirstSearchRecursive (graph, v, depth = 0) {
 
 function depthFirstSearch (root) {
+  let cache = {}
   // FIFO Queue as opposed to DFS's LIFO.
   let stack = Stack()
   stack.push(root)
   while (!stack.isEmpty()) {
     let w = stack.pop()
-    process.stdout.write(w)
-    process.stdout.write(' ')
-    if (graph[w]) {
-      stack.push(...graph[w])
+    if (!cache[w]) {
+      cache[w] = true
+      process.stdout.write(w)
+      process.stdout.write(' ')
+      if (graph[w]) {
+        stack.push(...graph[w])
+      }
     }
   }
 }

@@ -1,3 +1,6 @@
+// Queue is a FIFO operation. In JS, this can be represented by pushing the
+// items to the end and taking them them out from the rear position through
+// .shift().
 class Queue {
   constructor () {
     this.data = []
