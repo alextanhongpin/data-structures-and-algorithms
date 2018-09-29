@@ -30,9 +30,9 @@ function main () {
     for (let j = 1; j <= m; j += 1) {
       let cost = si === t[j - 1] ? 0 : 1 // Copy, else Substitution
       d[i][j] = Math.min(
-	d[i - 1][j] + 1, // Deletion 
-	d[i][j - 1] + 1, // Insertion
-	d[i - 1][j - 1] + cost 
+        d[i - 1][j] + 1, // Deletion
+        d[i][j - 1] + 1, // Insertion
+        d[i - 1][j - 1] + cost
       )
     }
   }

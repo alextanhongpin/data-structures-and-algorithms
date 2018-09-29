@@ -1,9 +1,8 @@
-function main() {
- 
-  let s = 'GATTACA' // Vertical 
+function main () {
+  let s = 'GATTACA' // Vertical
   let t = 'GCATGCU' // Horizontal
 
-  let n = s.length + 1 // Rows 
+  let n = s.length + 1 // Rows
   let m = t.length + 1 // Columns
 
   // Normally use `d` for distance
@@ -15,7 +14,6 @@ function main() {
   for (let i = 0; i < n; i += 1) {
     d[i][0] = -i
   }
-
 
   // d(0,j) = j
   for (let j = 0; j < m; j += 1) {
