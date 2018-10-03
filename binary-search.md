@@ -48,3 +48,52 @@ func binarySearch(target int, nums []int, left, right, depth int) (int, int) {
 	return -1, depth
 }
 ```
+
+
+## Iterative
+
+```go
+package main
+
+import (
+	"log"
+	"math/rand"
+	"sort"
+	"testing/quick"
+)
+
+func main() {
+	f := func(data []int) bool {
+		sort.Ints(data)
+		idx := -1
+		tgt := -1
+		if len(data) > 0 {
+			idx = rand.Intn(len(data))
+			tgt = data[idx]
+		}
+		return idx == binarySearch(tgt, data)
+	}
+	if err := quick.Check(f, nil); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func binarySearch(target int, data []int) int {
+	left := 0
+	right := len(data) - 1
+	for left <= right {
+		mid := (left + right) / 2
+		val := data[mid]
+		if target > val {
+			left = mid + 1
+		}
+		if target < val {
+			right = mid - 1
+		}
+		if target == val {
+			return mid
+		}
+	}
+	return -1
+}
+```
