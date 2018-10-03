@@ -3,12 +3,15 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 func main() {
-	data := []int{-4, 33, 3, 4, 2, 1, 6}
-	out := mergesort(data)
-	fmt.Println(out)
+	data := make([]int, 100)
+	for i := 0; i < 100; i++ {
+		data[i] = rand.Intn(1000)
+	}
+	fmt.Println(mergesort(data))
 }
 
 func mergesort(data []int) []int {
@@ -16,12 +19,14 @@ func mergesort(data []int) []int {
 		return data
 	}
 	mid := len(data) / 2
-	left := data[0:mid]
+	left := data[:mid]
 	right := data[mid:]
 	return merge(mergesort(left), mergesort(right))
 }
 
-func merge(left, right []int) (result []int) {
+func merge(left, right []int) []int {
+	var result []int
+
 	l, r := 0, 0
 	for l < len(left) && r < len(right) {
 		if left[l] <= right[r] {
@@ -32,13 +37,11 @@ func merge(left, right []int) (result []int) {
 			r++
 		}
 	}
-	if len(left) > 0 {
-		result = append(result, left[l:]...)
-	} 
-	if len(right) > 0 {
-		result = append(result, right[r:]...)
-	}
-	return
+
+	result = append(result, left[l:]...)
+	result = append(result, right[r:]...)
+
+	return result
 
 }
 ```
