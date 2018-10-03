@@ -1,3 +1,4 @@
+from random import randint
 from hypothesis import given, strategies as st
 
 def binary_search(target, arr):
@@ -6,7 +7,7 @@ def binary_search(target, arr):
     left = 0
     right = len(arr) 
     while left <= right:
-        mid = (left + right) / 2 
+        mid = (left + right) // 2 
         val = arr[mid]
         if target < val:
             right = mid - 1
@@ -21,7 +22,7 @@ def test_binary_search(input):
     data = sorted(input)
     index, target = -1, -1
     if len(data) > 0:
-        index = 0
+        index = randint(0, len(data) - 1) 
         target = data[index]
     try:
         assert binary_search(target, data) == index
@@ -29,3 +30,7 @@ def test_binary_search(input):
         print(e)
 
 test_binary_search()
+
+for i in range(5):
+    data = [1,2,3,4,5]
+    assert binary_search(data[i], data) == i
