@@ -23,7 +23,7 @@ func main() {
 			index = rand.Intn(len(data))
 			target = data[index]
 		}
-		expectedIndex, _ := binarySearch(target, data, 0, len(data), 1)
+		expectedIndex, _ := binarySearch(target, data, 0, len(data) - 1, 1)
 		return index == expectedIndex
 	}
 
@@ -33,7 +33,7 @@ func main() {
 }
 
 func binarySearch(target int, nums []int, left, right, depth int) (int, int) {
-	if left < right {
+	if left <= right {
 		mid := (left + right) / 2
 		value := nums[mid]
 
