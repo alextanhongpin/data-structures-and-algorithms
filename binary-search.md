@@ -1,3 +1,4 @@
+## Golang
 ```go
 package main
 
@@ -103,6 +104,7 @@ func binarySearch(target int, data []int) int {
 ```js
 function main () {
   console.log(binarySearch(3, [1, 2, 3, 4]))
+  console.log(binarySearchRecursive(4, [1, 2, 3, 4], 0, 4))
 }
 
 main()
@@ -112,14 +114,27 @@ function binarySearch (target, arr = []) {
   let right = arr.length
   while (left <= right) {
     const mid = Math.floor((left + right) / 2)
-
-    if (mid === target) {
+    const val = arr[mid]
+    if (val === target) {
       return mid
-    } else if (target < mid) {
+    } else if (target < val) {
       right = mid - 1
-    } else if (target > mid) {
-      left = mid + 1
+    } else if (target > val) {
+      left = val + 1
     }
+  }
+  return -1
+}
+
+function binarySearchRecursive (target, arr, left, right) {
+  const mid = Math.floor((left + right) / 2)
+  const val = arr[mid]
+  if (target > val) {
+    return binarySearchRecursive(target, arr, mid + 1, right)
+  } else if (target < val) {
+    return binarySearchRecursive(target, arr, left, right - 1)
+  } else if (target === val) {
+    return mid
   }
   return -1
 }
