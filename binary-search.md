@@ -97,3 +97,30 @@ func binarySearch(target int, data []int) int {
 	return -1
 }
 ```
+
+## Javascript
+
+```js
+function main () {
+  console.log(binarySearch(3, [1, 2, 3, 4]))
+}
+
+main()
+
+function binarySearch (target, arr = []) {
+  let left = 0
+  let right = arr.length
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2)
+
+    if (mid === target) {
+      return mid
+    } else if (target < mid) {
+      right = mid - 1
+    } else if (target > mid) {
+      left = mid + 1
+    }
+  }
+  return -1
+}
+```
