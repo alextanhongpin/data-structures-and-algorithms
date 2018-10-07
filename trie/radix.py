@@ -6,8 +6,8 @@ class Node():
         self.edges = []
 
     def is_leaf(self):
-        return len(self.edges) == 0 
-    
+        return len(self.edges) == 0
+
     def info(self, i = 0):
         for edge in self.edges:
             print('{} {}'.format('  ' * i, edge))
@@ -16,24 +16,24 @@ class Node():
 
 class Edge():
     def __init__(self, label):
-        self.label = label 
-        self.score = 1 
+        self.label = label
+        self.score = 1
         self.node = None
 
     def __str__(self):
         return '{}:{}'.format(self.label, self.score)
 
-def insert_iterative(root, word):
+def insert(root, word):
     traverse_node = root
     prefix = word
     while traverse_node is not None and not traverse_node.is_leaf():
-        next_edge = None 
+        next_edge = None
         # Go through each edges.
         for edge in traverse_node.edges:
             #  print('got prefix', prefix)
             if edge.label[0] != prefix[0]:
                 #  print('not equal')
-                continue 
+                continue
             #  next_edge = edge
 
             # The scenario where the prefix is an exact match.
@@ -99,18 +99,45 @@ def insert_iterative(root, word):
     traverse_node.edges.append(Edge(prefix))
 
 
+def lookup(root, word):
+    result = []
+    if root is None:
+        return result
+
+    count = 0
+    traverse_node = root
+    while traverse_node is not None and not traverse_node.is_leaf() and count < len(word):
+        next_edge = None
+        for edge in traverse_node.edges:
+            if word[count:].startswith(edge.label):
+                next_edge = edge
+                count = len(edge.label)
+        if next_edge is None:
+            break
+        traverse_node = next_edge.node
+    if traverse_node is None:
+        return result
+    result = [edge.label for edge in traverse_node.edges]
+    return [word + r for r in result] + [word + i for r in result for i in lookup(traverse_node, r)] 
+
+
+
+
 root = Node()
-insert_iterative(root, 'a')
-insert_iterative(root, 'a')
-insert_iterative(root, 'ab')
-insert_iterative(root, 'ac')
-insert_iterative(root, 'abc')
-insert_iterative(root, 'a')
-insert_iterative(root, 'b')
-insert_iterative(root, 'john')
-insert_iterative(root, 'johns')
-insert_iterative(root, 'jojo')
-insert_iterative(root, 'johny')
-insert_iterative(root, 'john doe')
-insert_iterative(root, 'jessie')
+insert(root, 'a')
+insert(root, 'a')
+insert(root, 'ab')
+insert(root, 'ac')
+insert(root, 'abc')
+insert(root, 'a')
+insert(root, 'b')
+insert(root, 'john')
+insert(root, 'johns')
+insert(root, 'jojo')
+insert(root, 'johny')
+insert(root, 'john doe')
+insert(root, 'jessie')
+print(lookup(root, 'jo'))
+print(lookup(root, 'j'))
+print(lookup(root, 'a'))
 root.info()
