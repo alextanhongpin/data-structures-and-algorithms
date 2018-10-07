@@ -4,92 +4,113 @@ import copy
 class Node():
     def __init__(self):
         self.edges = []
-        self.prefix = ''
-        self.leaf = None 
 
     def is_leaf(self):
-        return self.leaf is not None
+        return len(self.edges) == 0 
     
     def info(self, i = 0):
         for edge in self.edges:
-            print('{} {}'.format(' ' * i, edge))
-            if edge.node is not None:
+            print('{} {}'.format('  ' * i, edge))
+            if edge is not None and edge.node is not None:
                 edge.node.info(i + 1)
 
 class Edge():
     def __init__(self, label):
         self.label = label 
+        self.score = 1 
         self.node = None
 
     def __str__(self):
-        return self.label
+        return '{}:{}'.format(self.label, self.score)
 
-def lookup(root, string):
+def insert_iterative(root, word):
     traverse_node = root
-    elements_found = 0
-
-    while traverse_node is not None and not traverse_node.is_leaf() and elements_found < len(x):
+    prefix = word
+    while traverse_node is not None and not traverse_node.is_leaf():
+        next_edge = None 
+        # Go through each edges.
         for edge in traverse_node.edges:
-            if edge.label.startswith(x[:elements_found]):
+            #  print('got prefix', prefix)
+            if edge.label[0] != prefix[0]:
+                #  print('not equal')
+                continue 
+            #  next_edge = edge
+
+            # The scenario where the prefix is an exact match.
+            if edge.label == prefix:
+                # Do not need to iterate further. Break immediately.
+                next_edge = None
+
+                # Increment the score.
+                edge.score += 1
+                #  print('equal', prefix)
+                return
+
+            # This is an extension. E.g. car is part of cars.
+            if edge.label in prefix:
                 next_edge = edge
-        if next_edge is not None:
-            traverse_node = next_edge.target_node
+                edge.score += 1
+                prefix = prefix[len(edge.label):]
+                #  print('extend', edge.label, prefix)
+                break
 
-            elements_found += len(next_edge.label)
-        else:
-            traverse_node = None
-    return traverse_node is not None and traverse_node.is_leaf() and elements_found == len(x)
+            i = -1 
+            min_iter = min(len(edge.label), len(prefix))
+            for k in range(min_iter):
+                if edge.label[k] != prefix[k]:
+                    break
+                i = k + 1
 
+            if i == -1:
+                #  print('no match')
+                break
+            # Special condition.
+            new_edge = Edge(edge.label[:i])
+            new_edge.node = Node()
 
-def insert(root, string):
-    next_edge = None
-    for edge in root.edges:
-        # Check if the label has the first letter of the string.
-        if edge.label.startswith(string[0]):
-            next_edge = edge
-            # There can be no other edges with the same prefix.
+            old_edge = copy.deepcopy(edge)
+            old_edge.label = old_edge.label[i:]
+            if old_edge.label != '':
+                new_edge.node.edges.append(old_edge) 
+
+            prefix = prefix[i:]
+            if prefix != '':
+                split_edge = Edge(prefix)
+                new_edge.node.edges.append(split_edge) 
+            #  print('removed {}, split {}, add {} and {}'.format(edge.label, edge.label[:i], edge.label[i:], prefix))
+
+            for i, e in enumerate(traverse_node.edges):
+                if e.label == edge.label:
+                    #  print('equal', e.label, edge.label)
+                    traverse_node.edges.pop(i)
+                    break
+
+            #  traverse_node.edges.remove(edge)
+            traverse_node.edges.append(new_edge)
+            next_edge = new_edge
+        if next_edge is None:
             break
-    if next_edge is None:
-        # TODO: Check how to convert the label back to char code.
-        root.edges.append(Edge(string))
-    else:
-        old_label = next_edge.label
-        i = 0 
-        # Find similar prefixes.
-        while string[:i] == next_edge.label[:i]:
-            i += 1
-        i -= 1
-        # If they both have same prefixes, put them into the same group of
-        # prefixes.
-        tmp = copy.deepcopy(next_edge)
-        tmp.label = tmp.label[i:] 
+        if next_edge.node is None:
+            next_edge.node = Node()
+        traverse_node = next_edge.node
 
-        str_edge = Edge(string[i:])
-
-        new_prefix = string[:i]
-        new_edge = Edge(new_prefix)
-        
-        new_node = Node()
-        new_node.edges.append(tmp)
-        new_node.edges.append(str_edge)
-
-        new_edge.node = new_node
-        new_edge.label = new_prefix
-
-        next_edge.node = None
-        root.edges.append(new_edge)
-        root.edges.remove(next_edge)
+    if not prefix:
+        return
+    traverse_node.edges.append(Edge(prefix))
 
 
 root = Node()
-insert(root, 'alex')
-insert(root, 'alan')
-insert(root, 'john')
-insert(root, 'apple')
-insert(root, 'car')
-insert(root, 'cars')
-insert(root, 'dog')
-insert(root, 'dogs')
-insert(root, 'hello')
-insert(root, 'this')
+insert_iterative(root, 'a')
+insert_iterative(root, 'a')
+insert_iterative(root, 'ab')
+insert_iterative(root, 'ac')
+insert_iterative(root, 'abc')
+insert_iterative(root, 'a')
+insert_iterative(root, 'b')
+insert_iterative(root, 'john')
+insert_iterative(root, 'johns')
+insert_iterative(root, 'jojo')
+insert_iterative(root, 'johny')
+insert_iterative(root, 'john doe')
+insert_iterative(root, 'jessie')
 root.info()
