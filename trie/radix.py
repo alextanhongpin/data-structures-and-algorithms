@@ -68,29 +68,29 @@ def insert(root = None, word = ''):
     root.edges.append(new_edge)
 
 def lookup(root, word='', result = set()):
-    if word == '': 
-        for edge in root.edges:
-            result.add(edge.label)
-        return result
     if root is None or word is '': return result
 
-    i = 0 
-    next_edge = None
-    for edge in root.edges:
-        print(edge.label)
-        if edge.label[0] == word[0]:
-            i += len(edge.label)
-            next_edge = edge
+    i = 0
+    traverse_node = root
+    while traverse_node is not None and not traverse_node.is_leaf() and i < len(word):
+        next_edge = [edge for edge in traverse_node.edges if edge.label[0] == word[i]]
+        if len(next_edge) == 0:
+            traverse_node = None
             break
-        else:
-            continue
 
-    if next_edge is None:
+        edge = next_edge[0]
+        i += len(edge.label)
+        traverse_node = edge.node
+
+    if traverse_node is None:
         return result
-    result.add(next_edge.label)
 
-    print(i, word[i:])
-    return lookup(next_edge.node, word[i:], result)
+    out = [word[:i] + edge.label for edge in traverse_node.edges]
+    for o in out:
+        result.add(o)
+        lookup(root, o, result)
+    return result
+
 
 def debug(root, word):
     insert(root, word)
@@ -117,4 +117,4 @@ debug(root, 'jessica')
 print(lookup(root, 'jo'))
 #  print(lookup(root, 'j'))
 #  print('\nlooking for word')
-#  print(lookup(root, 'a'))
+print(lookup(root, 'a', set()))
