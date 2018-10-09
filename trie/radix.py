@@ -1,5 +1,5 @@
 #  https://en.wikipedia.org/wiki/Radix_tree
-import copy
+from copy import deepcopy
 
 class Node():
     def __init__(self):
@@ -99,78 +99,91 @@ class Edge():
 #      traverse_node.edges.append(Edge(prefix))
 
 
-def lookup(root, word):
-    result = []
-    if root is None:
-        return result
+#  def lookup(root, word):
+#      result = []
+#      if root is None:
+#          return result
+#
+#      count = 0
+#      traverse_node = root
+#      while traverse_node is not None and not traverse_node.is_leaf() and count < len(word):
+#          next_edge = None
+#          for edge in traverse_node.edges:
+#              if word[count:].startswith(edge.label):
+#                  next_edge = edge
+#                  count = len(edge.label)
+#          if next_edge is None:
+#              break
+#          traverse_node = next_edge.node
+#      if traverse_node is None:
+#          return result
+#      result = [edge.label for edge in traverse_node.edges]
+#      return [word + r for r in result] + [word + i for r in result for i in lookup(traverse_node, r)]
+#
 
-    count = 0
-    traverse_node = root
-    while traverse_node is not None and not traverse_node.is_leaf() and count < len(word):
-        next_edge = None
-        for edge in traverse_node.edges:
-            if word[count:].startswith(edge.label):
-                next_edge = edge
-                count = len(edge.label)
-        if next_edge is None:
-            break
-        traverse_node = next_edge.node
-    if traverse_node is None:
-        return result
-    result = [edge.label for edge in traverse_node.edges]
-    return [word + r for r in result] + [word + i for r in result for i in lookup(traverse_node, r)] 
-
-
-
-def insert(root, word):
+def insert(root = None, word = ''):
     if root is None or word is '': return
 
     # Prefix does not exist yet, add it.
-    if len(root.edges) == 0:
+    if root.is_leaf():
         root.edges.append(Edge(word))
         return
 
     i = -1
     next_edge = None
-    for pos, edge in enumerate(root.edges):
+    for idx, edge in enumerate(root.edges):
         max_cmp = min(len(edge.label), len(word))
         for k in range(max_cmp):
             if edge.label[k] != word[k]:
                 continue
             next_edge = edge
-            i = k + 1 
+            i = k + 1
 
-    if next_edge is None: 
-        root.edges.append(Edge(word))
-        return
-    if i == 0:
+    if next_edge is None or i == 0:
         root.edges.append(Edge(word))
         return
     if next_edge.label == word:
         next_edge.score += 1
         return
-    prefix_edge = copy.deepcopy(next_edge)
-    prefix_edge.score += 1
-    prefix_edge.label = prefix_edge.label[:i]
-    if prefix_edge.node is None:
-        prefix_edge.node = Node()
-    edge_a = Edge(next_edge.label[i:])
-    if edge_a.label != '':
-        insert(prefix_edge.node, edge_a.label)
 
-    word = word[i:]
-    if word != '':
-        edge_b = Edge(word)
-        insert(prefix_edge.node, edge_b.label)
+    edge = root.edges.pop(idx)
+    split_prefix = edge.label[i:]
 
-    # Remove old next_edge.
-    root.edges.append(prefix_edge)
-    root.edges.remove(next_edge)
+    edge.label = edge.label[:i]
+    edge.score += 1
+    if edge.node is None:
+        edge.node = Node()
+    insert(edge.node, split_prefix)
+    insert(edge.node, word[i:])
+
+    root.edges.append(edge)
+
+def lookup(root, oriword='', index=0, result = []):
+    word = oriword[index:]
+    if root is None or word == '': return result
+
+    i = -1
+    next_edge = None
+    for edge in root.edges:
+        max_cmp = min(len(edge.label), len(word))
+        for k in range(max_cmp):
+            if edge.label[k] != word[k]:
+                continue
+            next_edge = edge
+            i = k + 1
+    if next_edge is None or i == 0:
+        return [] 
+
+    #  if next_edge is not None and next_edge.node is not None:
+        #  result.extend([oriword + edge.label for edge in next_edge.node.edges])
+
+    result.append(oriword+next_edge.label)
+    return lookup(next_edge.node, oriword, len(next_edge.label), result)
+    #  return result
 
 def debug(root, word):
     insert(root, word)
     root.info()
-    print('')
 
 root = Node()
 insert(root, 'a')
@@ -181,12 +194,15 @@ insert(root, 'a')
 insert(root, 'b')
 insert(root, 'john')
 insert(root, 'johns')
-insert(root, 'jojo')
-insert(root, 'johny')
-insert(root, 'john doe')
-insert(root, 'jess')
-insert(root, 'jessie')
+debug(root, 'jojo')
+#  insert(root, 'johny')
+#  insert(root, 'john doe')
+#  insert(root, 'jess')
+#  insert(root, 'jessie')
 debug(root, 'jessica')
+
+#  print('looking for word')
 #  print(lookup(root, 'jo'))
 #  print(lookup(root, 'j'))
+#  print('\nlooking for word')
 #  print(lookup(root, 'a'))
