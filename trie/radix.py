@@ -73,18 +73,32 @@ def lookup(root, word='', result = set()):
     i = 0
     traverse_node = root
     while traverse_node is not None and not traverse_node.is_leaf() and i < len(word):
-        next_edge = [edge for edge in traverse_node.edges if edge.label[0] == word[i]]
+        next_edge = [edge for edge in traverse_node.edges
+                    if word[i:] in edge.label or
+                        edge.label in word[i:] 
+                    ]
+        print('found', [edge.label for edge in next_edge])
         if len(next_edge) == 0:
             traverse_node = None
             break
 
         edge = next_edge[0]
-        i += len(edge.label)
+        #  if i + len(edge.label) > len(word):
+        #      print('exceeded length', i + len(edge.label))
+        #      #  i += len(edge.label)
+        #      #  traverse_node = edge.node
+        #      break
+        print('added', edge)
         traverse_node = edge.node
+        i += len(edge.label)
 
     if traverse_node is None:
         return result
 
+    if i > len(word):
+        return set() 
+
+    print('reach', i, word, word[:i], [edge.label for edge in traverse_node.edges])
     out = [word[:i] + edge.label for edge in traverse_node.edges]
     for o in out:
         result.add(o)
@@ -117,4 +131,5 @@ debug(root, 'jessica')
 print(lookup(root, 'jo'))
 #  print(lookup(root, 'j'))
 #  print('\nlooking for word')
-print(lookup(root, 'a', set()))
+#  print(lookup(root, 'a', set()))
+#  print(lookup(root, 'je', set()))
