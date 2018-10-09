@@ -130,6 +130,7 @@ def insert(root = None, word = ''):
         return
 
     i = -1
+    idx = -1
     next_edge = None
     for idx, edge in enumerate(root.edges):
         max_cmp = min(len(edge.label), len(word))
@@ -145,45 +146,55 @@ def insert(root = None, word = ''):
     if next_edge.label == word:
         next_edge.score += 1
         return
+    if next_edge.label in word:
+        next_edge.score += 1
+        if next_edge.node is None:
+            next_edge.node = Node()
+        insert(next_edge.node, word[len(next_edge.label):])
+        return
 
     edge = root.edges.pop(idx)
-    split_prefix = edge.label[i:]
+    split_prefix = edge.label[:i]
+    edge.label = edge.label[i:]
 
-    edge.label = edge.label[:i]
-    edge.score += 1
-    if edge.node is None:
-        edge.node = Node()
-    insert(edge.node, split_prefix)
-    insert(edge.node, word[i:])
+    new_edge = Edge(split_prefix)
+    new_edge.node = Node()
+    new_edge.score += edge.score
+    new_edge.node.edges.append(edge)
 
-    root.edges.append(edge)
+    insert(new_edge.node, word[i:])
+    root.edges.append(new_edge)
 
-def lookup(root, oriword='', index=0, result = []):
+def lookup(root, oriword='', index=0, result = set()):
     word = oriword[index:]
-    if root is None or word == '': return result
+    print('root,index', oriword[index:])
+    if root is None: return result
+    if word == '':
+        return result
 
-    i = -1
+    i = 0 
     next_edge = None
     for edge in root.edges:
-        max_cmp = min(len(edge.label), len(word))
-        for k in range(max_cmp):
-            if edge.label[k] != word[k]:
-                continue
+        #  if index > 0:
+            #  result.add(oriword[:index + 1] + edge.label)
+        #  print(edge.label)
+        if edge.label[0] == word[0]:
+            i += len(edge.label)
             next_edge = edge
-            i = k + 1
-    if next_edge is None or i == 0:
-        return [] 
+            break
+        else:
+            continue
 
-    #  if next_edge is not None and next_edge.node is not None:
-        #  result.extend([oriword + edge.label for edge in next_edge.node.edges])
+    if next_edge is None:
+        return result
+    result.add(next_edge.label)
 
-    result.append(oriword+next_edge.label)
-    return lookup(next_edge.node, oriword, len(next_edge.label), result)
-    #  return result
+    return lookup(next_edge.node, oriword, i, result)
 
 def debug(root, word):
     insert(root, word)
     root.info()
+    print('')
 
 root = Node()
 insert(root, 'a')
@@ -194,15 +205,15 @@ insert(root, 'a')
 insert(root, 'b')
 insert(root, 'john')
 insert(root, 'johns')
-debug(root, 'jojo')
-#  insert(root, 'johny')
-#  insert(root, 'john doe')
-#  insert(root, 'jess')
-#  insert(root, 'jessie')
+insert(root, 'jojo')
+insert(root, 'johny')
+insert(root, 'john doe')
+insert(root, 'jess')
+insert(root, 'jessie')
 debug(root, 'jessica')
 
 #  print('looking for word')
-#  print(lookup(root, 'jo'))
+print(lookup(root, 'jo'))
 #  print(lookup(root, 'j'))
 #  print('\nlooking for word')
 #  print(lookup(root, 'a'))
