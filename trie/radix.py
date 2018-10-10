@@ -23,6 +23,10 @@ class Edge():
         return '{}:{}'.format(self.label, self.score)
 
 def insert(root = None, word = ''):
+    '''
+    Insert adds a word/prefix into the tree by iterating and adding the prefix
+    to existing ones before traversing down the tree to extend the prefix.
+    '''
     if not root and not word: return
 
     # There are no edges. Create new.
@@ -30,16 +34,16 @@ def insert(root = None, word = ''):
         # Conventional to return None for mutating items in python.
         return root.edges.append(Edge(word))
 
-    next_edge = [(i, edge) for i, edge in enumerate(root.edges) 
-                 if similar_prefix(word, edge.label)] 
+    next_edge = [(i, edge) for i, edge in enumerate(root.edges)
+                 if similar_prefix(word, edge.label)]
 
     if not next_edge:
         return root.edges.append(Edge(word))
-        
+
     i, next_edge = next_edge[0]
     k = similar_prefix(word, next_edge.label)
 
-    if not k: 
+    if not k:
         # There are no matching prefix, which means that the word does not
         # exist yet.
         return root.edges.append(Edge(word))
@@ -90,10 +94,14 @@ def similar_prefix(a, b):
     values = zip(a, b)
     for i, (left, right) in enumerate(values):
         if left != right:
-            return i 
-    return len(values) 
-    
+            return i
+    return min(len(a), len(b)) 
+
 def lookup(root, word='', result = None):
+    '''
+    Lookup will look for the words matching the prefix and return the
+    suggestions.
+    '''
     if result is None:
         result = set()
 
@@ -113,7 +121,7 @@ def lookup(root, word='', result = None):
         return result
 
     if i > len(word):
-        return set() 
+        return set()
 
     out = [word[:i] + edge.label for edge in traverse_node.edges]
     for o in out:
@@ -142,12 +150,10 @@ insert(root, 'jojo')
 insert(root, 'johny')
 insert(root, 'john doe')
 insert(root, 'jess')
+insert(root, 'je')
 insert(root, 'jessie')
 debug(root, 'jessica')
 
-#  print('looking for word')
 print(lookup(root, 'jo'))
-#  print(lookup(root, 'j'))
-#  print('\nlooking for word')
-#  print(lookup(root, 'a', set()))
-#  print(lookup(root, 'je', set()))
+print(lookup(root, 'a'))
+print(lookup(root, 'je'))

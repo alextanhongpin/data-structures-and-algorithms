@@ -23,71 +23,69 @@ func main() {
 	score := (float64(1) - float64(l)/float64(longest)) * 100
 	fmt.Println(score)
 
-	i := 0
-	s := make([]rune, len(source))
-	copy(s, source)
-	fmt.Println(string(s), "->", string(target))
-	for {
-		if len(s) != len(target) {
-			if len(s) < len(target) {
-				s = append(s, target[len(s):]...)
-			}
-			if len(s) > len(target) {
-				s = s[:len(target)]
-			}
-		} else {
-			t := make([]rune, len(target))
-			copy(t, target)
-			if s[i] != t[i] {
-				s[i], t[i] = t[i], s[i]
-			}
-			i++
-		}
-		fmt.Println("assign target", string(target), string(s))
-		if string(target) == string(s) {
-			break
-		}
-	}
+	// i := 0
+	// s := make([]rune, len(source))
+	// copy(s, source)
+	// fmt.Println(string(s), "->", string(target))
+	// for {
+	//         if len(s) != len(target) {
+	//                 if len(s) < len(target) {
+	//                         s = append(s, target[len(s):]...)
+	//                 }
+	//                 if len(s) > len(target) {
+	//                         s = s[:len(target)]
+	//                 }
+	//         } else {
+	//                 t := make([]rune, len(target))
+	//                 copy(t, target)
+	//                 if s[i] != t[i] {
+	//                         s[i], t[i] = t[i], s[i]
+	//                 }
+	//                 i++
+	//         }
+	//         fmt.Println("assign target", string(target), string(s))
+	//         if string(target) == string(s) {
+	//                 break
+	//         }
+	// }
 }
 
 func levenshtein(source, target []rune) int {
 	s, t := len(source)+1, len(target)+1
 
 	table := make([][]int, s)
-	for row, _ := range table {
+	for row := range table {
 		table[row] = make([]int, t)
 		table[row][0] = row
 	}
-	for col, _ := range table[0] {
+	for col := range table[0] {
 		table[0][col] = col
 	}
+
+	indicatorFunction := func(a, b rune) int {
+		if a == b {
+			return 0
+		}
+		return SubstituteCost
+	}
+
 	for i := 1; i < s; i++ {
 		for j := 1; j < t; j++ {
-			cost := SubstituteCost
-			if source[i-1] == target[j-1] {
-				cost = 0
-			}
 			table[i][j] = min(
-				table[i-1][j]+DeleteCost, // Deletion
-				table[i][j-1]+InsertCost, // Insertion
-				table[i-1][j-1]+cost,     // Substitution
+				table[i-1][j]+DeleteCost,                                    // Deletion
+				table[i][j-1]+InsertCost,                                    // Insertion
+				table[i-1][j-1]+indicatorFunction(source[i-1], target[j-1]), // Substitution
 			)
-
 		}
 	}
 
-	// Walk the path backward
-
+	// Walk the path backward.
 	i, j := len(source), len(target)
 	var pathA, pathB, ops []rune
 	var paths []string
 
 	for i != 0 && j != 0 {
-		cost := SubstituteCost
-		if source[i-1] == target[j-1] {
-			cost = 0
-		}
-		substituteCost := table[i-1][j-1] + cost
+		substituteCost := table[i-1][j-1] + indicatorFunction(source[i-1], target[j-1])
 		deleteCost := table[i-1][j] + DeleteCost
 		insertCost := table[i][j-1] + InsertCost
 		switch table[i][j] {
