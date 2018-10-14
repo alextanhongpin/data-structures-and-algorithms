@@ -1,3 +1,2 @@
-tmp_*
-input.txt
-output.txt
+*.txt
+*.out
