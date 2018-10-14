@@ -36,3 +36,39 @@ func main() {
 	o := MergeSort(in)
 	fmt.Println(o)
 }
+
+// MergeSortV2 sorts the data in place with space complexity of O(n)
+func MergeSortV2(arr []int) {
+	tmp := make([]int, len(arr))
+	copy(tmp, arr)
+	mergesort(tmp, arr, 0, len(arr))
+}
+
+func mergesort(tmp, arr []int, start, end int) {
+	if end-start < 2 {
+		return
+	}
+	if end-start == 2 {
+		if arr[start] > arr[start+1] {
+			arr[start], arr[start+1] = arr[start+1], arr[start]
+		}
+		return
+	}
+	mid := (start + end) / 2
+	mergesort(arr, tmp, start, mid)
+	mergesort(arr, tmp, mid, end)
+
+	i, j := start, mid
+	idx := start
+	for idx < end {
+		if j >= end || (i < mid && tmp[i] < tmp[j]) {
+			arr[idx] = tmp[i]
+			i++
+		} else {
+			arr[idx] = tmp[j]
+			j++
+		}
+		idx++
+	}
+
+}
