@@ -8,25 +8,66 @@ import (
 	"os"
 	"runtime/pprof"
 	"strconv"
-	"time"
 )
 
-func init() {
+func main() {
+	n := 1000000
+	// writeSampleData(n)
+	// readSampleData()
+
+	// Number of items to sort.
+	buckets := 10
+	bucketSize := n / buckets
+
+	// Write CPU profile.
+	cpuf, err := os.Create("cpu.out")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(cpuf)
+	defer pprof.StopCPUProfile()
+
+	writeToTempFiles(buckets, bucketSize)
+
+	log.Println("finish writing to temp file")
+	mergeFiles()
+
+	memf, err := os.Create("mem.out")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.WriteHeapProfile(memf)
+	defer memf.Close()
 }
 
 func writeSampleData(n int) {
 	f, err := os.Create("input.txt")
 	if err != nil {
 		log.Fatal(err)
-
 	}
 	defer f.Close()
-	rand.Seed(time.Now().UnixNano())
+	// rand.Seed(time.Now().UnixNano())
+
+	// Setup buffered writer.
+	w := bufio.NewWriter(f)
+	defer w.Flush()
+
 	for i := 0; i < n; i++ {
+		// Binary encoded integers is faster.
+		num := rand.Int63()
 		// bs := make([]byte, binary.MaxVarintLen64)
-		// binary.PutVarint(bs, rand.Int63())
-		// f.Write(bs)
-		f.WriteString(strconv.FormatInt(rand.Int63(), 10))
+		// n := binary.PutVarint(bs, num)
+		// bs = bs[:n] // Truncate the additional bytes.
+		// Write to the buffer. The actual write to the file only
+		// occurs when flush is called.
+		// if _, err := w.Write(bs); err != nil {
+		//         log.Fatal(err)
+		// }
+		// w.WriteRune('\n')
+		w.WriteString(strconv.FormatInt(num, 10))
+		w.WriteRune('\n')
+		// Slower alternative tested.
+		// f.WriteString(strconv.FormatInt(rand.Int63(), 10))
 		// f.WriteString(fmt.Sprintf("%d\n", rand.Int63()))
 	}
 }
@@ -39,12 +80,22 @@ func readSampleData() {
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
+
+	var count int
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		i := scanner.Text()
+		n, err := strconv.ParseInt(i, 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// v, n := binary.Varint(b)
+		log.Println(n)
+		count++
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("read items", count)
 }
 
 func writeToTempFiles(buckets, bucketSize int) {
@@ -59,31 +110,47 @@ func writeToTempFiles(buckets, bucketSize int) {
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		n, err := strconv.Atoi(scanner.Text())
+		t := scanner.Text()
+		if t == "" {
+			continue
+		}
+		v, err := strconv.ParseInt(t, 10, 64)
 		if err != nil {
 			log.Fatal(err)
 		}
-		items = append(items, int64(n))
+		// b := scanner.Bytes()
+		// if len(b) == 0 {
+		//         continue
+		// }
+		// v, n := binary.Varint(b)
+		// if v == 0 && n < 0 {
+		//         break
+		// }
+		items = append(items, v)
 		offset++
-		// fmt.Println(scanner.Text())
 		if offset == (start+1)*bucketSize {
 			// Perform mergesort on the current bucket.
-			// log.Println("scanner: found", len(items), "items", "offset", offset)
-
 			sort(items)
-			// log.Println("mergesort: sorted items", sorted)
 
 			// Write to a temp file with the start index.
 			name := fmt.Sprintf("tmp_%d.txt", start)
-			fmt.Println("file: create", name)
 			f, err := os.Create(name)
 			if err != nil {
 				log.Fatal(err)
 			}
+			w := bufio.NewWriter(f)
 			for _, v := range items {
-				f.WriteString(fmt.Sprintf("%d\n", v))
-				// f.WriteString(strconv.FormatInt(v, 10) + "\n")
+				// bs := make([]byte, binary.MaxVarintLen64)
+				// n := binary.PutVarint(bs, v)
+				// bs = bs[:n]
+
+				// Don't forget to add a new line at the end.
+				// bs = append(bs, byte('\n'))
+				// w.WriteString(fmt.Sprint(v))
+				w.WriteString(strconv.FormatInt(v, 10))
+				w.WriteRune('\n')
 			}
+			w.Flush()
 			f.Close()
 
 			// Reset the bucket.
@@ -103,7 +170,6 @@ func writeToTempFiles(buckets, bucketSize int) {
 func mergeFiles() {
 	n := 10
 
-	// files := make([]*os.File, n)
 	scanners := make([]*bufio.Scanner, n)
 	for i := 0; i < n; i++ {
 		f, err := os.Open(fmt.Sprintf("tmp_%d.txt", i))
@@ -111,20 +177,21 @@ func mergeFiles() {
 			log.Fatal(err)
 		}
 		defer f.Close()
-		// files[i] = f
 		scanners[i] = bufio.NewScanner(f)
 	}
 
 	var items []int64
 	cache := make(map[int64]int, n)
+	counter := make(map[int]int, n)
 	for i := 0; i < n; i++ {
 		scanners[i].Scan()
-		n, err := strconv.ParseInt(scanners[i].Text(), 10, 64)
+		v, err := strconv.ParseInt(scanners[i].Text(), 10, 64)
 		if err != nil {
 			log.Fatal(err)
 		}
-		cache[int64(n)] = i
-		items = append(items, int64(n))
+		cache[v] = i
+		counter[i]++
+		items = append(items, v)
 	}
 
 	outf, err := os.Create("output.txt")
@@ -133,73 +200,38 @@ func mergeFiles() {
 	}
 	defer outf.Close()
 
+	w := bufio.NewWriter(outf)
+	defer w.Flush()
+
 	for len(items) > 0 {
 		minHeap(items)
-		// log.Println("got items", items)
+
 		min := items[0]
-		// fmt.Println("min is", min)
-		outf.WriteString(fmt.Sprintf("%d\n", min))
+		// w.WriteString(fmt.Sprint(min))
+		w.WriteString(strconv.FormatInt(min, 10))
+		w.WriteRune('\n')
+
+		// w.WriteString(fmt.Sprintf("%d\n", min))
 		// Take the next item from the scanner.
 		items = extractMin(items)
 
-		scanners[cache[min]].Scan()
-		n, err := strconv.ParseInt(scanners[cache[min]].Text(), 10, 64)
-		if err != nil {
-			// log.Println("end of line")
+		idx := cache[min]
+		counter[idx]++
+		scanners[idx].Scan()
+		t := scanners[idx].Text()
+		if t == "" {
+			delete(cache, min)
 			continue
-			// break
-			// log.Fatal(err)
 		}
-		items = append(items, int64(n))
+		v, err := strconv.ParseInt(t, 10, 64)
+		if err != nil {
+			log.Println("eof", err)
+			break
+		}
+		items = append(items, v)
 		delete(cache, min)
-		cache[int64(n)] = cache[min]
+		cache[v] = idx
 	}
-	// Clear the remaining lines.
-	// for i := 0; i < n; i++ {
-	//
-	//         // scanners[i].Scan()
-	//         if scanners[i].Text() != "" {
-	//                 n, err := strconv.ParseInt(scanners[i].Text(), 10, 64)
-	//                 if err != nil {
-	//                         log.Fatal(err)
-	//                 }
-	//                 outf.WriteString(fmt.Sprintf("%d\n", n))
-	//         }
-	//
-	// }
-	// log.Println("items left", items)
-}
-
-func main() {
-	n := 1000000
-	// writeSampleData(n)
-	// Number of items to sort.
-	buckets := 10
-	bucketSize := n / buckets
-
-	// Write CPU profile.
-	cpuf, err := os.Create("cpu.out")
-	if err != nil {
-		log.Fatal(err)
-	}
-	pprof.StartCPUProfile(cpuf)
-	defer pprof.StopCPUProfile()
-
-	writeToTempFiles(buckets, bucketSize)
-
-	mergeFiles()
-
-	memf, err := os.Create("mem.out")
-	if err != nil {
-		log.Fatal(err)
-	}
-	pprof.WriteHeapProfile(memf)
-	defer memf.Close()
-
-	// writeSampleData(100)
-	// readSampleData()
-	// arr := []int{3, 2, 1, 4, 9, 3, 19}
-	// minHeap(arr)
 }
 
 func extractMin(arr []int64) []int64 {
