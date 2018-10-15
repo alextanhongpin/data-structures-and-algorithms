@@ -2,18 +2,19 @@ package main
 
 import (
 	"bufio"
+	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"os"
 	"runtime/pprof"
-	"strconv"
 )
 
 func main() {
 	n := 1000000
-	// writeSampleData(n)
-	// readSampleData()
+	writeSampleData(n)
+	// readSampleData(100)
 
 	// Number of items to sort.
 	buckets := 10
@@ -55,45 +56,32 @@ func writeSampleData(n int) {
 	for i := 0; i < n; i++ {
 		// Binary encoded integers is faster.
 		num := rand.Int63()
-		// bs := make([]byte, binary.MaxVarintLen64)
-		// n := binary.PutVarint(bs, num)
-		// bs = bs[:n] // Truncate the additional bytes.
-		// Write to the buffer. The actual write to the file only
-		// occurs when flush is called.
-		// if _, err := w.Write(bs); err != nil {
-		//         log.Fatal(err)
-		// }
-		// w.WriteRune('\n')
-		w.WriteString(strconv.FormatInt(num, 10))
-		w.WriteRune('\n')
-		// Slower alternative tested.
-		// f.WriteString(strconv.FormatInt(rand.Int63(), 10))
-		// f.WriteString(fmt.Sprintf("%d\n", rand.Int63()))
+		if err := binary.Write(w, binary.BigEndian, num); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func readSampleData() {
-	f, err := os.Open("input.txt")
+func readSampleData(limit int) {
+	f, err := os.Open("output.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer f.Close()
 
-	scanner := bufio.NewScanner(f)
-
+	r := bufio.NewReader(f)
 	var count int
-	for scanner.Scan() {
-		i := scanner.Text()
-		n, err := strconv.ParseInt(i, 10, 64)
-		if err != nil {
-			log.Fatal(err)
+	for {
+		var i int64
+		err := binary.Read(r, binary.BigEndian, &i)
+		if err != nil && err == io.EOF {
+			break
 		}
-		// v, n := binary.Varint(b)
-		log.Println(n)
+		fmt.Println(i)
 		count++
-	}
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		if count > limit {
+			break
+		}
 	}
 	fmt.Println("read items", count)
 }
@@ -108,24 +96,14 @@ func writeToTempFiles(buckets, bucketSize int) {
 	var items []int64
 	var start, offset int
 
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		t := scanner.Text()
-		if t == "" {
-			continue
+	r := bufio.NewReader(f)
+loop:
+	for {
+		var v int64
+		err := binary.Read(r, binary.BigEndian, &v)
+		if err != nil && err == io.EOF {
+			break loop
 		}
-		v, err := strconv.ParseInt(t, 10, 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// b := scanner.Bytes()
-		// if len(b) == 0 {
-		//         continue
-		// }
-		// v, n := binary.Varint(b)
-		// if v == 0 && n < 0 {
-		//         break
-		// }
 		items = append(items, v)
 		offset++
 		if offset == (start+1)*bucketSize {
@@ -140,15 +118,7 @@ func writeToTempFiles(buckets, bucketSize int) {
 			}
 			w := bufio.NewWriter(f)
 			for _, v := range items {
-				// bs := make([]byte, binary.MaxVarintLen64)
-				// n := binary.PutVarint(bs, v)
-				// bs = bs[:n]
-
-				// Don't forget to add a new line at the end.
-				// bs = append(bs, byte('\n'))
-				// w.WriteString(fmt.Sprint(v))
-				w.WriteString(strconv.FormatInt(v, 10))
-				w.WriteRune('\n')
+				binary.Write(w, binary.BigEndian, v)
 			}
 			w.Flush()
 			f.Close()
@@ -161,34 +131,27 @@ func writeToTempFiles(buckets, bucketSize int) {
 		}
 	}
 	fmt.Println("end scanning", offset)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
 }
 
 func mergeFiles() {
 	n := 10
 
-	scanners := make([]*bufio.Scanner, n)
+	scanners := make([]*bufio.Reader, n)
 	for i := 0; i < n; i++ {
 		f, err := os.Open(fmt.Sprintf("tmp_%d.txt", i))
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer f.Close()
-		scanners[i] = bufio.NewScanner(f)
+		scanners[i] = bufio.NewReader(f)
 	}
 
 	var items []int64
 	cache := make(map[int64]int, n)
 	counter := make(map[int]int, n)
 	for i := 0; i < n; i++ {
-		scanners[i].Scan()
-		v, err := strconv.ParseInt(scanners[i].Text(), 10, 64)
-		if err != nil {
-			log.Fatal(err)
-		}
+		var v int64
+		binary.Read(scanners[i], binary.BigEndian, &v)
 		cache[v] = i
 		counter[i]++
 		items = append(items, v)
@@ -207,26 +170,20 @@ func mergeFiles() {
 		minHeap(items)
 
 		min := items[0]
-		// w.WriteString(fmt.Sprint(min))
-		w.WriteString(strconv.FormatInt(min, 10))
-		w.WriteRune('\n')
+		binary.Write(w, binary.BigEndian, min)
 
-		// w.WriteString(fmt.Sprintf("%d\n", min))
 		// Take the next item from the scanner.
 		items = extractMin(items)
 
 		idx := cache[min]
 		counter[idx]++
-		scanners[idx].Scan()
-		t := scanners[idx].Text()
-		if t == "" {
+
+		var v int64
+		err := binary.Read(scanners[idx], binary.BigEndian, &v)
+		if err != nil && err == io.EOF {
+
 			delete(cache, min)
 			continue
-		}
-		v, err := strconv.ParseInt(t, 10, 64)
-		if err != nil {
-			log.Println("eof", err)
-			break
 		}
 		items = append(items, v)
 		delete(cache, min)
@@ -253,13 +210,6 @@ func minHeap(arr []int64) {
 	for i := (n - 1) / 2; i > -1; i-- {
 		heapify(arr, n, i)
 	}
-
-	// for len(arr) > 0 {
-	//         fmt.Println(arr)
-	//         min := arr[0]
-	//         fmt.Println("min is", min)
-	//         arr = extractMin(arr)
-	// }
 }
 
 func heapify(arr []int64, n, i int) {
@@ -309,5 +259,4 @@ func mergesort(tmp, arr []int64, start, end int) {
 		}
 		idx++
 	}
-
 }
