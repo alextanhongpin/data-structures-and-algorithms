@@ -11,6 +11,12 @@ var (
 	SubstituteCost = 1
 )
 
+const (
+	DELETE int = iota
+	INSERT
+	REPLACE
+)
+
 func main() {
 	var (
 		source = []rune("places")
@@ -22,40 +28,17 @@ func main() {
 
 	score := (float64(1) - float64(l)/float64(longest)) * 100
 	fmt.Println(score)
-
-	// i := 0
-	// s := make([]rune, len(source))
-	// copy(s, source)
-	// fmt.Println(string(s), "->", string(target))
-	// for {
-	//         if len(s) != len(target) {
-	//                 if len(s) < len(target) {
-	//                         s = append(s, target[len(s):]...)
-	//                 }
-	//                 if len(s) > len(target) {
-	//                         s = s[:len(target)]
-	//                 }
-	//         } else {
-	//                 t := make([]rune, len(target))
-	//                 copy(t, target)
-	//                 if s[i] != t[i] {
-	//                         s[i], t[i] = t[i], s[i]
-	//                 }
-	//                 i++
-	//         }
-	//         fmt.Println("assign target", string(target), string(s))
-	//         if string(target) == string(s) {
-	//                 break
-	//         }
-	// }
 }
 
 func levenshtein(source, target []rune) int {
 	s, t := len(source)+1, len(target)+1
 
 	table := make([][]int, s)
+	op := make([][]int, s)
+
 	for row := range table {
 		table[row] = make([]int, t)
+		op[row] = make([]int, t)
 		table[row][0] = row
 	}
 	for col := range table[0] {
@@ -71,52 +54,42 @@ func levenshtein(source, target []rune) int {
 
 	for i := 1; i < s; i++ {
 		for j := 1; j < t; j++ {
-			table[i][j] = min(
-				table[i-1][j]+DeleteCost,                                    // Deletion
-				table[i][j-1]+InsertCost,                                    // Insertion
-				table[i-1][j-1]+indicatorFunction(source[i-1], target[j-1]), // Substitution
-			)
+			costs := []int{
+				table[i][j-1] + InsertCost,                                    // Insertion
+				table[i-1][j] + DeleteCost,                                    // Deletion
+				table[i-1][j-1] + indicatorFunction(source[i-1], target[j-1]), // Substitution
+			}
+			cost := min(costs...)
+			table[i][j] = cost
+			op[i][j] = indexOf(cost, costs)
 		}
 	}
 
 	// Walk the path backward.
 	i, j := len(source), len(target)
-	var pathA, pathB, ops []rune
-	var paths []string
 
+	var ops []string
 	for i != 0 && j != 0 {
-		substituteCost := table[i-1][j-1] + indicatorFunction(source[i-1], target[j-1])
-		deleteCost := table[i-1][j] + DeleteCost
-		insertCost := table[i][j-1] + InsertCost
-		switch table[i][j] {
-		case deleteCost:
+		cost := op[i][j]
+		switch {
+		case cost == DELETE || j == 0:
+			str := fmt.Sprintf("deleted %d-th string (%c) for %s", i, source[i-1], string(source))
+			ops = append(ops, str)
 			i--
-			paths = append(paths, "delete: "+string(source[i]))
-			pathA = append(pathA, source[i])
-			pathB = append(pathB, '-')
-			ops = append(ops, '-')
-		case insertCost:
+		case cost == INSERT || i == 0:
+			str := fmt.Sprintf("insert %d-th string (%c) for %s", j, target[j-1], string(target))
+			ops = append(ops, str)
 			j--
-			paths = append(paths, "insert: "+string(target[j]))
-			pathA = append(pathA, '-')
-			pathB = append(pathB, target[j])
-			ops = append(ops, '+')
-		case substituteCost:
-			j--
+		case cost == REPLACE:
+			if table[i-1][j-1] < table[i][j] {
+				str := fmt.Sprintf("replaced %d-th string (%c) with %c, %s", j, source[i-1], target[j-1], string(target))
+				ops = append(ops, str)
+			}
 			i--
-			paths = append(paths, "copy: "+string(target[j]))
-			pathA = append(pathA, source[i])
-			pathB = append(pathB, target[j])
-			ops = append(ops, 's')
+			j--
 		}
 	}
-	fmt.Println("alignments")
-	fmt.Println(string(reverse(pathA)))
-	fmt.Println(string(reverse(pathB)))
-	fmt.Println(string(reverse(ops)))
-	fmt.Println("\noperations")
-	fmt.Println(strings.Join(reverseString(paths), "\n"))
-
+	fmt.Println(strings.Join(reverseString(ops), "\n"))
 	return table[s-1][t-1]
 }
 
