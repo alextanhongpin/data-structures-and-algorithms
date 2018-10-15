@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // MergeSort is an efficient sorting algorithm that uses divide and conquer approach to order elements in an array. Mergesort runs in a guaranteed O(n log n) time.
 func MergeSort(arr []int) []int {
@@ -73,6 +75,9 @@ func mergesort(tmp, arr []int, start, end int) {
 }
 
 func MergeSortV3(arr []int) {
+	// Unless the number is a power of 2, this will actually allocate extra
+	// storage size.
+	// size := math.Pow(2, math.Ceil(math.Log2(float64(len(arr)/2))))
 	buf := make([]int, len(arr)/2)
 	mergesortv3(arr, buf)
 }
@@ -81,18 +86,26 @@ func mergesortv3(arr, buf []int) {
 	if len(arr) <= 1 {
 		return
 	}
+	if len(arr) == 2 {
+		if arr[1] < arr[0] {
+			arr[0], arr[1] = arr[1], arr[0]
+		}
+		return
+	}
 	mid := len(arr) / 2
 	left, right := arr[:mid], arr[mid:]
 	mergesortv3(left, buf)
 	mergesortv3(right, buf)
+	// Use only additional N/2 space for sorting
 	copy(buf, left)
 	l, r := 0, 0
 	for l < len(left) && r < len(right) {
+		idx := l + r
 		if buf[l] <= right[r] {
-			arr[l+r] = buf[l]
+			arr[idx] = buf[l]
 			l++
 		} else {
-			arr[l+r] = right[r]
+			arr[idx] = right[r]
 			r++
 		}
 	}
@@ -103,5 +116,52 @@ func mergesortv3(arr, buf []int) {
 	for r < len(right) {
 		arr[r+l] = right[r]
 		r++
+	}
+	// buf = buf[:0]
+}
+
+func MergeSortV4(arr []int) {
+	buf := make([]int, len(arr)/2)
+	mergesortv4(arr, buf, 0, len(arr))
+}
+
+func mergesortv4(arr, buf []int, start, end int) {
+	if end-start < 2 {
+		return
+	}
+	if end-start == 2 {
+		if arr[start] > arr[start+1] {
+			arr[start], arr[start+1] = arr[start+1], arr[start]
+		}
+		return
+	}
+	mid := (start + end) / 2
+	mergesortv4(arr, buf, start, mid)
+	mergesortv4(arr, buf, mid, end)
+
+	// Use only additional N/2 space for sorting
+	copy(buf, arr[start:mid])
+
+	l, r := start, mid
+	i := start
+	for l < mid && r < end {
+		if buf[l-start] < arr[r] {
+			arr[i] = buf[l-start]
+			l++
+		} else {
+			arr[i] = arr[r]
+			r++
+		}
+		i++
+	}
+	for l < mid {
+		arr[i] = buf[l-start]
+		l++
+		i++
+	}
+	for r < end {
+		arr[i] = arr[r]
+		r++
+		i++
 	}
 }
