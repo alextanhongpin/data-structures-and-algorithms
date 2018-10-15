@@ -33,8 +33,8 @@ func merge(left, right []int) (result []int) {
 
 func main() {
 	in := []int{3, 2, 1, 100, 10, 33, 1}
-	o := MergeSort(in)
-	fmt.Println(o)
+	MergeSortV3(in)
+	fmt.Println(in)
 }
 
 // MergeSortV2 sorts the data in place with space complexity of O(n)
@@ -70,5 +70,38 @@ func mergesort(tmp, arr []int, start, end int) {
 		}
 		idx++
 	}
+}
 
+func MergeSortV3(arr []int) {
+	buf := make([]int, len(arr)/2)
+	mergesortv3(arr, buf)
+}
+
+func mergesortv3(arr, buf []int) {
+	if len(arr) <= 1 {
+		return
+	}
+	mid := len(arr) / 2
+	left, right := arr[:mid], arr[mid:]
+	mergesortv3(left, buf)
+	mergesortv3(right, buf)
+	copy(buf, left)
+	l, r := 0, 0
+	for l < len(left) && r < len(right) {
+		if buf[l] <= right[r] {
+			arr[l+r] = buf[l]
+			l++
+		} else {
+			arr[l+r] = right[r]
+			r++
+		}
+	}
+	for l < len(left) {
+		arr[l+r] = buf[l]
+		l++
+	}
+	for r < len(right) {
+		arr[r+l] = right[r]
+		r++
+	}
 }

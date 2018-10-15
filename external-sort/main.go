@@ -13,7 +13,7 @@ import (
 
 func main() {
 	n := 1000000
-	writeSampleData(n)
+	// writeSampleData(n)
 	// readSampleData(100)
 
 	// Number of items to sort.
@@ -50,7 +50,7 @@ func writeSampleData(n int) {
 	// rand.Seed(time.Now().UnixNano())
 
 	// Setup buffered writer.
-	w := bufio.NewWriter(f)
+	w := bufio.NewWriterSize(f, 1024)
 	defer w.Flush()
 
 	for i := 0; i < n; i++ {
@@ -116,7 +116,7 @@ loop:
 			if err != nil {
 				log.Fatal(err)
 			}
-			w := bufio.NewWriter(f)
+			w := bufio.NewWriterSize(f, 1024)
 			for _, v := range items {
 				binary.Write(w, binary.BigEndian, v)
 			}
@@ -163,7 +163,7 @@ func mergeFiles() {
 	}
 	defer outf.Close()
 
-	w := bufio.NewWriter(outf)
+	w := bufio.NewWriterSize(outf, 1024)
 	defer w.Flush()
 
 	for len(items) > 0 {
@@ -228,35 +228,38 @@ func heapify(arr []int64, n, i int) {
 }
 
 func sort(arr []int64) {
-	tmp := make([]int64, len(arr))
-	copy(tmp, arr)
-	mergesort(tmp, arr, 0, len(arr))
+	// tmp := make([]int64, len(arr))
+	// copy(tmp, arr)
+	// mergesort(tmp, arr, 0, len(arr))
+	buf := make([]int64, len(arr)/2)
+	mergesort(arr, buf)
 }
 
-func mergesort(tmp, arr []int64, start, end int) {
-	if end-start < 2 {
+func mergesort(arr, buf []int64) {
+	if len(arr) <= 1 {
 		return
 	}
-	if end-start == 2 {
-		if arr[start] > arr[start+1] {
-			arr[start], arr[start+1] = arr[start+1], arr[start]
-		}
-		return
-	}
-	mid := (start + end) / 2
-	mergesort(arr, tmp, start, mid)
-	mergesort(arr, tmp, mid, end)
-
-	i, j := start, mid
-	idx := start
-	for idx < end {
-		if j >= end || (i < mid && tmp[i] < tmp[j]) {
-			arr[idx] = tmp[i]
-			i++
+	mid := len(arr) / 2
+	left, right := arr[:mid], arr[mid:]
+	mergesort(left, buf)
+	mergesort(right, buf)
+	copy(buf, left)
+	l, r := 0, 0
+	for l < len(left) && r < len(right) {
+		if buf[l] <= right[r] {
+			arr[l+r] = buf[l]
+			l++
 		} else {
-			arr[idx] = tmp[j]
-			j++
+			arr[l+r] = right[r]
+			r++
 		}
-		idx++
+	}
+	for l < len(left) {
+		arr[l+r] = buf[l]
+		l++
+	}
+	for r < len(right) {
+		arr[r+l] = right[r]
+		r++
 	}
 }
