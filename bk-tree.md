@@ -251,3 +251,175 @@ func editDistance(s, t string) int {
 	return dp[m-1][n-1]
 }
 ```
+
+## Optimized
+
+```go
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"fmt"
+	"log"
+	"os"
+	"runtime"
+	"runtime/pprof"
+)
+
+func main() {
+	f, err := os.Create("cpu.out")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
+	bkTree := NewBKTree()
+	dict, err := os.Open("/usr/share/dict/words")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer dict.Close()
+	scanner := bufio.NewScanner(dict)
+	max := 0
+	for scanner.Scan() {
+		bkTree.Add(scanner.Bytes())
+		if len(scanner.Bytes()) > max {
+			max = len(scanner.Bytes())
+		}
+	}
+	fmt.Println("longest", max)
+	// dictionary := []string{"hell", "help", "shel", "smell", "fell", "felt", "oops", "pop", "oouch", "halt"}
+	// for _, word := range dictionary {
+	//         bkTree.Add(word)
+	// }
+	fmt.Println(bkTree.Search([]byte("ops"), 2))
+	fmt.Println(bkTree.Search([]byte("hel"), 2))
+	fmt.Println(bkTree.Search([]byte("trie"), 2))
+
+	mem, err := os.Create("mem.out")
+	if err != nil {
+		log.Fatal(err)
+	}
+	runtime.GC()
+	pprof.WriteHeapProfile(mem)
+	defer mem.Close()
+}
+
+type Node struct {
+	word     []byte
+	children map[int]*Node
+}
+
+func NewNode(x []byte) *Node {
+	return &Node{
+		word: bytes.ToLower(x),
+		// children: node[:],
+		children: make(map[int]*Node),
+	}
+}
+
+func (n *Node) AddChild(key int, word []byte) {
+	n.children[key] = NewNode(word)
+}
+
+func (n *Node) HasKey(key int) bool {
+	_, found := n.children[key]
+	return found
+}
+
+type BKTree struct {
+	root *Node
+	buf  []int
+}
+
+func NewBKTree() *BKTree {
+	return &BKTree{
+		buf: make([]int, 32),
+	}
+}
+
+func (b *BKTree) Add(word []byte) {
+	// if !b.isSet {
+	if b.root == nil {
+		b.root = NewNode(word)
+		// b.isSet = true
+		return
+	}
+	word = bytes.ToLower(word)
+	curNode := b.root
+	// buf := make([]int, 256)
+	dist := editDistance(curNode.word, word, b.buf)
+	for curNode.HasKey(dist) {
+		if dist == 0 {
+			return
+		}
+		curNode = curNode.children[dist]
+		dist = editDistance(curNode.word, word, b.buf)
+	}
+	curNode.AddChild(dist, word)
+}
+
+func recursiveSearch(node *Node, result *[][]byte, word []byte, d int) {
+	buf := make([]int, 256)
+	curDist := editDistance(node.word, word, buf)
+	minDist := curDist - d
+	maxDist := curDist + d
+	if curDist <= d {
+		*result = append(*result, node.word)
+	}
+	for key, children := range node.children {
+		if key > minDist && key < maxDist {
+			recursiveSearch(children, result, word, d)
+		}
+	}
+}
+
+func (b *BKTree) Search(word []byte, d int) [][]byte {
+	var result [][]byte
+	word = bytes.ToLower(word)
+	recursiveSearch(b.root, &result, word, d)
+	return result
+}
+
+func min(nums ...int) int {
+	val := 1<<8 - 1
+	for _, n := range nums {
+		if n < val {
+			val = n
+		}
+	}
+	return val
+}
+
+func editDistance(s, t []byte, buf []int) int {
+	m, n := len(s), len(t)
+	// v0 := make([]int, n+1)
+	// v1 := make([]int, n+1)
+	v0 := buf[:n+1]
+	v1 := buf[:n+1]
+
+	for i := 0; i < n; i++ {
+		v0[i] = i
+	}
+
+	for i := 0; i < m; i++ {
+		v1[0] = i + 1
+		for j := 0; j < n; j++ {
+			deletionCost := v0[j+1] + 1
+			insertionCost := v1[j] + 1
+			substitutionCost := v0[j] + 1
+			if s[i] == t[j] {
+				substitutionCost = v0[j]
+			}
+			v1[j+1] = min(deletionCost, insertionCost, substitutionCost)
+		}
+		tmp := v0
+		v0 = v1
+		v1 = tmp
+	}
+	return v0[n]
+}
+```
