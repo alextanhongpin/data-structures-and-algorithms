@@ -3,21 +3,45 @@
 Can be used to generate credit card numbers.
 
 ```js
-func calcChecksum(s) {
-  let r = s.split('').reverse()
+// Write JavaScript here and press Ctrl+Enter to execute
+function luhn(s) {
+	let r = s.split("").map(Number)
   let sum = 0
-  for (let i = 0; i < r.length; i += 1) {
-    let n = Number(r[i])
-    if (i % 2 === 0) {
+  for (let i = r.length-1; i > -1; i--  ) {
+    let n = r[i]
+    // If it is even number. Alternative, i % 2 === 1 will give the same result.
+    if (i & 1 === 1) {
       n = n * 2
       n = n > 9 ? n - 9 : n
     }
     sum += n
   }
-  return sum * 9 % 10
+  return sum
 }
 
-assert(calcChecksum('7992739871') == 3)
+function luhnFunctional(s) {
+	let r = s.split("").map(Number)
+  let even = r
+  	.filter((_, i) => i % 2 === 1)
+  	.map(i => i * 2)
+    .map(i => i > 9 ? i - 9 : i)
+  let odd = r.filter((_, i) => i % 2 === 0)
+  return [...even, ...odd].reduce((acc, i) => acc + i, 0)
+}
+
+function verifyChecksum (s) {
+	return luhn(s) % 10 === 0
+}
+
+function calculateChecksum(s) {
+  return luhn(s) * 9 % 10
+}
+
+let s = "7992739871"
+console.log("checksum digit", calculateChecksum(s))
+console.log("valid checksum", verifyChecksum(s + calculateChecksum(s)))
+
+console.log("luhn functional", luhnFunctional(s))
 ```
 
 In Rust:
