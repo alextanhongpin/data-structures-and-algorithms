@@ -1,5 +1,4 @@
 /* trie.js is a basic trie implementation on the client side*/
-
 class Node {
   constructor(symbol) {
     this.symbol = symbol
@@ -38,30 +37,58 @@ class Trie {
     }
     return !!children.endword
   }
-  suggest(word) {
-    let children = this.children
+  search(word) {
+    let node = this
     for (let w of word) {
-      if (!children[w]) {
+      if (!node.children[w]) {
         return []
       }
-      children = children[w].children
+      node = node.children[w]
     }
-    const queue = Object.values(children)
-    const result = new Set()
-    while (queue.length) {
-      const head = queue.shift()
-      if (head.endword) {
-        result.add(head.symbol)
+    let results = new Set()
+    for (let child in node.children) {
+      this.traverse(node.children[child], word, results)
+    }
+    return [...results]
+  }
+  iterate(word) {
+    let node = this
+    for (let w of word) {
+      if (!node.children[w]) {
+        return []
       }
-      for (let child in head.children) {
-        head.children[child].symbol = head.symbol + child
-        if (head.children[child].endword) {
-          result.add(head.children[child].symbol)
-        }
-        queue.push(...Object.values(head.children))
+      node = node.children[w]
+    }
+
+    let result = new Set()
+    let stack = Object.values(node.children)
+    let results = Array(stack.length).fill(word)
+    while (stack.length) {
+      let node = stack.pop()
+      let str = results.pop()
+      str += node.symbol
+      if (node.endword) {
+        result.add(str)
+
+      }
+      for (let key in node.children) {
+        stack.push(node.children[key])
+        results.push(str)
       }
     }
-    return [...result].map(i => word + i)
+    return [...result]
+  }
+  traverse(node, word = '', results = new Set()) {
+    word += node.symbol
+    if (node.endword) {
+      results.add(word)
+    }
+    for (let child in node.children) {
+      this.traverse(node.children[child], word, results)
+    }
+    if (!Object.keys((node && node.children) || {}).length) {
+      results.add(word)
+    }
   }
 }
 
@@ -78,4 +105,6 @@ trie.add("has")
 trie.add("haseeees")
 console.log(trie.has('hello'))
 console.log(trie.has('ha'))
-console.log(trie.suggest('h'))
+console.log(trie.search('ha'))
+// console.log(trie.suggest('ca'))
+console.log(trie.iterate('ha'))
