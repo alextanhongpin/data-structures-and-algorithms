@@ -34,3 +34,36 @@ function merge(arr) {
 
 console.log(merge(arr))
 ```
+
+
+## Optimized way
+
+```js
+function mergeInterval(result) {
+  result.sort((a, b) => a[0] - b[0])
+  const stack = []
+  stack.push(result.shift())
+  while (result.length) {
+    const peek = stack[stack.length - 1]
+    const next = result.shift()
+
+    if (peek[1] >= next[0] && peek[1] <= next[1]) {
+      stack.pop()
+      stack.push([peek[0], next[1]])
+    } else {
+      stack.push(next)
+    }
+  }
+
+  return stack
+}
+
+const result = [
+  [1, 3],
+  [2, 6],
+  [8, 10],
+  [15, 18]
+]
+// const result = [[4,5], [1,4]]
+console.log(mergeInterval(result))
+```
