@@ -44,3 +44,39 @@ func main() {
 	}
 }
 ```
+
+
+## JavaScript implementation
+
+```js
+function quicksort(arr, lo, hi) {
+  if (lo < hi) {
+    const p = partition(arr, lo, hi)
+    quicksort(arr, lo, p - 1)
+    quicksort(arr, p + 1, hi)
+  }
+}
+
+function swap(arr, a, b) {
+  const tmp = arr[b]
+  arr[b] = arr[a]
+  arr[a] = tmp
+}
+
+function partition(arr, lo, hi) {
+  const pivot = arr[hi]
+  let i = lo - 1
+  for (const j = lo; j < hi; j += 1) {
+    if (arr[j] <= pivot) {
+      i += 1
+      swap(arr, i, j)
+    }
+  }
+  swap(arr, i + 1, hi)
+  return i + 1
+}
+
+const x = [5, 4, 3, 2, 1]
+quicksort(x, 0, x.length - 1)
+console.log(x)
+```
