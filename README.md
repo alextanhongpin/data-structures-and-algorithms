@@ -78,3 +78,57 @@ how to compute viterbi algorithm in different languages
 ## Compression
 Check out algorithm for compressed inputs, such as LZ77 (grammar-based compression) and Boldi-Vigna (graph compression).
 
+## Segment Trees
+
+https://kartikkukreja.wordpress.com/2014/11/09/a-simple-approach-to-segment-trees/
+
+https://codeforces.com/blog/entry/15890
+https://hackernoon.com/practical-data-structures-for-frontend-applications-when-to-use-segment-trees-9c7cdb7c2819
+https://cp-algorithms.com/data_structures/segment_tree.html
+https://www.hackerearth.com/practice/data-structures/advanced-data-structures/segment-trees/tutorial/
+https://medium.com/m/global-identity?redirectUrl=https%3A%2F%2Fblog.mapbox.com%2Fa-dive-into-spatial-search-algorithms-ebd0c5e39d2a
+
+## Technical Indicators
+
+Try out all the possible technical indicators and write the algorithm in Python Jupyter. Also, run it against a real test data, plot it out and visualize the outcome. See if they can be used for prediction. Also, check if you can do image pattern matching against the popular technical indicators. Repo [here](https://github.com/alextanhongpin/technical-indicators)
+
+TODO: Write unit test for the technical indicators.
+
+
+
+## Sperner’s Lemma
+
+Algorithm for splitting rent.
+
+## Leslie Lamport
+
+Look into his past work, including the Byzantine General Problem, and [The Part-Time Parliament]( https://lamport.azurewebsites.net/pubs/lamport-paxos.pdf)
+
+
+
+
+## Look into distributed synchronization protocols and implement a basic working example
+
+## Look into operational transformation
+
+## Look into grapheme cluster
+Something to do with the unicode encoding.
+http://unicode.org/reports/tr29/
+
+
+
+## Dendogram
+Hierarchical clustering and how to generate such clusters.
+
+
+## TOCTOU
+Time to check, time to use race condition. Read on it and how to prevent it.
+
+
+
+## How does the redis TTL works
+
+https://redis.io/commands/expire
+Implement one version in golang, which takes advantage of the hash map random order to expire the first 20% of the keys.
+
+
