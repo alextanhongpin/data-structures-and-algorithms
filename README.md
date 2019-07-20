@@ -131,4 +131,20 @@ Time to check, time to use race condition. Read on it and how to prevent it.
 https://redis.io/commands/expire
 Implement one version in golang, which takes advantage of the hash map random order to expire the first 20% of the keys.
 
+## Algorithms
+
+- Locality sensitive hashing
+https://pydata.org/london2018/schedule/presentation/30/
+https://www.learndatasci.com/tutorials/building-recommendation-engine-locality-sensitive-hashing-lsh-python/
+https://databricks.com/session/locality-sensitive-hashing-by-spark
+https://www.mit.edu/~andoni/LSH/
+
+https://medium.com/engineering-brainly/locality-sensitive-hashing-explained-304eb39291e4
+https://en.m.wikipedia.org/wiki/Locality-sensitive_hashing
+https://towardsdatascience.com/understanding-locality-sensitive-hashing-49f6d1f6134?gi=5b9309f16dce
+https://en.m.wikipedia.org/wiki/Locality-sensitive_hashing
+https://en.m.wikipedia.org/wiki/(1%2Bε)-approximate_nearest_neighbor_search
+
+- KD Tree
+https://en.m.wikipedia.org/wiki/K-d_tree
 
