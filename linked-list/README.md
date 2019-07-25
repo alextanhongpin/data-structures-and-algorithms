@@ -138,3 +138,61 @@ list.remove(20)
 console.log(list)
 console.log(list.deleteAtHead())
 ```
+
+## Sum of linked list
+
+```js
+class LinkedListNode {
+  constructor(value) {
+    this.value = value
+    this.next = null
+  }
+}
+
+class LinkedList {
+  constructor(node) {
+    this.head = node
+  }
+  add(value) {
+    let head = this.head
+    if (!head) {
+      this.head = new LinkedListNode(value)
+      return
+    }
+    while (head.next) {
+      head = head.next
+    }
+    head.next = new LinkedListNode(value)
+  }
+}
+
+const linkedListA = new LinkedList()
+linkedListA.add(3)
+linkedListA.add(1)
+linkedListA.add(5)
+console.log(linkedListA)
+
+const linkedListB = new LinkedList()
+linkedListB.add(5)
+linkedListB.add(9)
+linkedListB.add(2)
+console.log(linkedListB)
+
+// a and b are LinkedListNode, not LinkedList
+function addLinkedList(a, b, carry = 0) {
+  if (!a && !b) return null
+  let result = new LinkedListNode()
+  let value = carry
+  if (a) {
+    value += a.value
+  }
+  if (b) {
+    value += b.value
+  }
+  result.value = value % 10
+  result.next = addLinkedList(a.next, b.next, value > 9 ? 1 : 0)
+  return result
+}
+
+console.log(addLinkedList(linkedListA.head, linkedListB.head))
+```
