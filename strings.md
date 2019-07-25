@@ -70,3 +70,54 @@ function removeDuplicates(str = '') {
 
 console.log(removeDuplicates('thisisaaaaaaaabbbccccbbbbthis'))
 ```
+
+## Check Anagram extra buffer
+
+```js
+function checkAnagram(a, b) {
+  if (a.length !== b.length) return false
+  const chars = Array(256).fill(0)
+  for (let i = 0; a[i] && b[i]; i++) {
+    chars[a.charCodeAt(i)]++
+    chars[b.charCodeAt(i)]--
+  }
+  for (let count of chars) {
+    if (count !== 0) return false
+  }
+  return true
+}
+
+console.log(checkAnagram('listen', 'silent'))
+```
+
+## Check Anagram constant space
+```js
+function checkAnagram2(a, b) {
+  if (a.length !== b.length) return false
+
+  const chars = Array(256).fill(0)
+  let uniqueChar = 0
+  let completed = 0
+
+  for (let i = 0; a[i]; i++) {
+    const char = a.charCodeAt(i)
+    if (!chars[char]) uniqueChar++
+    chars[char]++
+  }
+
+  for (let i = 0; b[i]; i++) {
+    const char = b.charCodeAt(i)
+    if (!chars[char]) return false
+    chars[char]--
+    if (chars[char] === 0) {
+      if (uniqueChar === ++completed) {
+        return i === b.length - 1
+      }
+    }
+  }
+  return false
+}
+
+console.log(checkAnagram2('listen', 'silent'))
+console.log(checkAnagram2('triangle', 'integral'))
+```
