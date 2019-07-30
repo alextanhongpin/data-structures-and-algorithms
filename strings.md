@@ -1,32 +1,40 @@
 ## Unique characters for all character code
 ```js
-function uniqueChars(str) {
-  const chars = Array(256).fill(false)
+function isUniqueAsciiChars(str) {
+  const charset = Array(256).fill(false)
   for (let i in str) {
     const code = str.charCodeAt(i)
-    if (chars[code]) return false
-    chars[code] = true
+    if (charset[code]) return false
+    charset[code] = true
   }
   return true
 }
+console.log(isUniqueAsciiChars(''))
+console.log(isUniqueAsciiChars('hello'))
+console.log(isUniqueAsciiChars('a'))
+console.log(isUniqueAsciiChars('ab'))
+console.log(isUniqueAsciiChars('abb'))
 ```
 
 ## Unique characters from a-z
 
 ```js
-function uniqueAlphabets(str) {
-  let chars = 0
-  const a = 'a'.charCodeAt()
+function isUniqueAlphabets(str) {
+  let hit = 0
+  const charA = 'a'.charCodeAt()
   for (let i in str) {
-    const code = str.charCodeAt(i) - a
-    if ((chars & (1 << code)) > 0) return false
-    chars |= (1 << code)
+    const code = str.charCodeAt(i) - charA
+    if (hit & (1 << code)) return false
+    hit |= (1 << code)
   }
   return true
 }
 
-console.log(uniqueChars('hello'))
-console.log(uniqueAlphabets('helo'))
+console.log('empty string', isUniqueAlphabets(''))
+console.log(isUniqueAlphabets('hello'))
+console.log(isUniqueAlphabets('a'))
+console.log(isUniqueAlphabets('ab'))
+console.log(isUniqueAlphabets('abb'))
 ```
 
 ## Remove duplicate characters with extra space
@@ -143,4 +151,75 @@ function isAnagram2(str1, str2) {
 console.log(isAnagram2('listen', 'silent'))
 console.log(isAnagram2('alerted', 'altered'))
 console.log(isAnagram2('altered', 'related'))
+```
+
+## Strings permutation
+
+```js
+function swap(arr, i, j) {
+  const tmp = arr[i]
+  arr[i] = arr[j]
+  arr[j] = tmp
+}
+
+function permutateString(str) {
+  const arr = str.split('')
+  const result = []
+  const permutate = (arr, lo, hi) => {
+    if (lo === hi) {
+      result.push(arr.join(''))
+      return
+    } else {
+      for (let i = lo; i < hi; i++) {
+        swap(arr, i, lo)
+        permutate(arr, i + 1, hi)
+        swap(arr, i, lo)
+      }
+    }
+  }
+  permutate(arr, 0, arr.length)
+  return result
+}
+console.log(permutateString('abcd'))
+console.log(permutateString('abc'))
+```
+
+## Find palindrone 
+
+```js
+function palindronePermutations(str) {
+  let hashmap = {}
+  for (let char of str) {
+    if (!hashmap[char]) hashmap[char] = 0
+    hashmap[char]++
+  }
+  let isOdd = false
+  for (let char in hashmap) {
+    if (hashmap[char] & 1) {
+      isOdd = true
+    }
+  }
+  const strOdd = str.length ^ 1
+  const isPalindrone = (strOdd && isOdd) || (!strOdd && !isOdd)
+  if (!isPalindrone) {
+    return null
+  }
+  let odd = ''
+  let even = ''
+  for (let char in hashmap) {
+    if (hashmap[char] & 1) {
+      odd = char
+    } else {
+      for (let i = 0; i < Math.floor(hashmap[char] / 2); i++) {
+        even += char
+      }
+    }
+  }
+  const permutations = permutateString(even)
+  return permutations.map((permutate) => {
+    return permutate + odd + permutate.split('').reverse().join('')
+  })
+}
+
+console.log(palindronePermutations('aabbcadad'))
 ```
