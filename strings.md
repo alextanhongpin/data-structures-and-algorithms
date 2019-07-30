@@ -32,34 +32,38 @@ console.log(uniqueAlphabets('helo'))
 ## Remove duplicate characters with extra space
 
 ```js
-function removeDuplicateString(str = '') {
-  if (str.length < 2) return str
-  const alphabets = Array(256).fill(false)
-  const result = Array(str.length).fill('')
+function removeDuplicatesEff(str) {
+  let result = Array(str.length).fill('')
+  let charset = Array(256).fill(false)
   let tail = 0
-  for (let i in str) {
-    const char = str.charCodeAt(i)
-    if (!alphabets[char]) {
-      result[tail++] = str.charAt(i)
-      alphabets[char] = true
+  for (let i = 0; i < str.length; i++) {
+    if (!charset[str.charCodeAt(i)]) {
+      result[tail++] = str[i]
+      charset[str.charCodeAt(i)] = true
     }
   }
   return result.join('')
 }
 
-removeDuplicateString('thisisaaaaaaaabbbccccbbbbthis')
+console.log(removeDuplicatesEff('abracadabra'))
+console.log(removeDuplicatesEff('abcd'))
+console.log(removeDuplicatesEff('aaaa'))
+console.log(removeDuplicatesEff(''))
+console.log(removeDuplicatesEff('aabb'))
+console.log(removeDuplicatesEff('ababab'))
 ```
 
 ## Remove duplicates with space O(1)
 ```js
-function removeDuplicates(str = '') {
-  if (str.length < 2) return str
-  const result = Array(str.length).fill('')
+function removeDuplicates(str) {
+  let result = Array(str.length).fill('')
   let tail = 0
-  for (let i in str) {
-    let j
+  for (let i = 0; i < str.length; i++) {
+    let j = 0
     for (j = 0; j < tail; j++) {
-      if (str[i] === result[j]) break
+      if (result[j] === str[i]) {
+        break
+      }
     }
     if (j === tail) {
       result[tail++] = str[i]
@@ -68,7 +72,26 @@ function removeDuplicates(str = '') {
   return result.join('')
 }
 
-console.log(removeDuplicates('thisisaaaaaaaabbbccccbbbbthis'))
+console.log(removeDuplicates('abracadabra'))
+console.log(removeDuplicates('abcd'))
+console.log(removeDuplicates('aaaa'))
+console.log(removeDuplicates(''))
+console.log(removeDuplicates('aabb'))
+console.log(removeDuplicates('ababab'))
+```
+
+## Check Anagram Sort
+
+```js
+function isAnagram(str1, str2) {
+  const sortString = (str) => {
+    return str.split('').sort().join('')
+  }
+  return sortString(str1) === sortString(str2)
+}
+console.log(isAnagram('listen', 'silent'))
+console.log(isAnagram('alerted', 'altered'))
+console.log(isAnagram('altered', 'related'))
 ```
 
 ## Check Anagram extra buffer
@@ -92,32 +115,32 @@ console.log(checkAnagram('listen', 'silent'))
 
 ## Check Anagram constant space
 ```js
-function checkAnagram2(a, b) {
-  if (a.length !== b.length) return false
-
-  const chars = Array(256).fill(0)
-  let uniqueChar = 0
+function isAnagram2(str1, str2) {
+  if (str1.length !== str2.length) return false
+  const charset = Array(256).fill(0)
+  let uniqueChars = 0
   let completed = 0
 
-  for (let i = 0; a[i]; i++) {
-    const char = a.charCodeAt(i)
-    if (!chars[char]) uniqueChar++
-    chars[char]++
+  for (let i in str1) {
+    const char = str1.charCodeAt(i)
+    if (!charset[char]) {
+      uniqueChars++
+    }
+    charset[char]++
   }
-
-  for (let i = 0; b[i]; i++) {
-    const char = b.charCodeAt(i)
-    if (!chars[char]) return false
-    chars[char]--
-    if (chars[char] === 0) {
-      if (uniqueChar === ++completed) {
-        return i === b.length - 1
-      }
+  for (let j in str2) {
+    const char = str2.charCodeAt(j)
+    if (!charset[char]) return false
+    charset[char]--
+    if (charset[char] === 0) completed++
+    if (completed === uniqueChars) {
+      return parseInt(j, 10) === str2.length - 1
     }
   }
   return false
 }
 
-console.log(checkAnagram2('listen', 'silent'))
-console.log(checkAnagram2('triangle', 'integral'))
+console.log(isAnagram2('listen', 'silent'))
+console.log(isAnagram2('alerted', 'altered'))
+console.log(isAnagram2('altered', 'related'))
 ```
