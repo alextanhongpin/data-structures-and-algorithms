@@ -148,3 +148,4 @@ https://en.m.wikipedia.org/wiki/(1%2Bε)-approximate_nearest_neighbor_search
 - KD Tree
 https://en.m.wikipedia.org/wiki/K-d_tree
 
+https://en.m.wikipedia.org/wiki/List_of_algorithms
