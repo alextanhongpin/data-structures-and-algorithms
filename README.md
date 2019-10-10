@@ -134,6 +134,9 @@ Implement one version in golang, which takes advantage of the hash map random or
 ## Algorithms
 
 - KD Tree
-https://en.m.wikipedia.org/wiki/K-d_tree
+- https://en.m.wikipedia.org/wiki/K-d_tree
 
-https://en.m.wikipedia.org/wiki/List_of_algorithms
+
+## References
+- https://en.m.wikipedia.org/wiki/List_of_algorithms
+- https://en.wikipedia.org/wiki/Ford%E2%80%93Fulkerson_algorithm
