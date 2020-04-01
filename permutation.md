@@ -96,8 +96,8 @@ import "fmt"
 func main() {
 	perms := func(data []int, k int) [][]int {
 		var result [][]int
-		var rec func(start, depth int, data, output []int)
-		rec = func(start, depth int, data, output []int) {
+		var rec func(depth int, data, output []int)
+		rec = func(depth int, data, output []int) {
 			if output == nil {
 				output = make([]int, k)
 			}
@@ -108,19 +108,20 @@ func main() {
 				return
 			}
 			for i, n := range data {
-				output[start] = n
-				rec(start+1, depth+1, data[i+1:], output)
+				output[depth] = n
+				rec(depth+1, data[i+1:], output)
 			}
 		}
-		rec(0, 0, data, nil)
+		rec(0, data, nil)
 		return result
 	}
 	var (
 		n    = 3
-		nums = []int{5, 4, 1, 2, 3}
+		nums = []int{1, 2, 3, 4, 5}
 	)
 	for _, res := range perms(nums, n) {
 		fmt.Println(res)
 	}
 }
+
 ```
