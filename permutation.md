@@ -47,3 +47,41 @@ function permutateString(str) {
 
 console.log(permutateString('abc'))
 ```
+
+
+# Find n-permutations from a given list
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	n := 3
+	num := []int{1,2,3,4,5}
+
+	// Find n-permutations from a given list.
+	var helper func(curr, max int, data []int, output []int, results *[][]int)
+	helper = func(k, n int, data, output []int, results *[][]int) {
+		if output == nil {
+			output = make([]int, n)
+		}
+		if k == n {
+			cpy := make([]int, n)
+			copy(cpy, output)
+			*results = append(*results, cpy)
+			return
+		}
+		for i, d := range data {
+			output[k] = d
+			dta := data[i+1:]
+      // Increment the index, and fit in all possible combinations.
+			helper(k+1, n, dta, output, results)
+		}
+	}
+	results := make([][]int, 0)
+	helper(0, n, num, nil, &results)
+	fmt.Println(results)
+}
+```
