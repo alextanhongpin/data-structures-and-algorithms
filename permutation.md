@@ -85,3 +85,42 @@ func main() {
 	fmt.Println(results)
 }
 ```
+
+# n-permutations from list, improved version of the above algorithm
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	perms := func(data []int, k int) [][]int {
+		var result [][]int
+		var rec func(start, depth int, data, output []int)
+		rec = func(start, depth int, data, output []int) {
+			if output == nil {
+				output = make([]int, k)
+			}
+			if depth == k {
+				tmp := make([]int, k)
+				copy(tmp, output)
+				result = append(result, tmp)
+				return
+			}
+			for i, n := range data {
+				output[start] = n
+				rec(start+1, depth+1, data[i+1:], output)
+			}
+		}
+		rec(0, 0, data, nil)
+		return result
+	}
+	var (
+		n    = 3
+		nums = []int{5, 4, 1, 2, 3}
+	)
+	for _, res := range perms(nums, n) {
+		fmt.Println(res)
+	}
+}
+```
