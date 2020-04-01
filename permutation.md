@@ -123,5 +123,28 @@ func main() {
 		fmt.Println(res)
 	}
 }
+```
 
+# JS Version
+```js
+function permutations(arr = [], k = 0) {
+  const result = []
+  const recursion = (depth = 0, output = [], rest = []) => {
+    if (!output.length) output = Array(k).fill(-1)
+    if (depth === k) {
+      result.push([...output])
+      return
+    }
+    // Why not for (let i in rest)? 
+    // Common mistake - the "i" is a string, not integer.
+    for (let i = 0; i < rest.length; i += 1) {
+      output[depth] = rest[i]
+      recursion(depth + 1, output, rest.slice(i + 1))
+    }
+  }
+  recursion(0, [], arr)
+  return result
+}
+
+console.log(permutations([1, 2, 3, 4, 5], 3))
 ```
