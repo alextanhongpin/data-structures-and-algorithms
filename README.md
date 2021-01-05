@@ -136,6 +136,10 @@ Implement one version in golang, which takes advantage of the hash map random or
 - KD Tree
 - https://en.m.wikipedia.org/wiki/K-d_tree
 
+## Rubik's cube solver
+
+https://en.wikipedia.org/wiki/Optimal_solutions_for_Rubik%27s_Cube
+
 
 ## References
 - https://en.m.wikipedia.org/wiki/List_of_algorithms
