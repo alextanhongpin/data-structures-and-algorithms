@@ -12,6 +12,12 @@ Other algorithms not in this repo:
 - [celebrity problem](https://github.com/alextanhongpin/celebrity-problem)
 - [bandit-algorithm](https://github.com/alextanhongpin/go-bandit) as an alternative to A/B testing, and also used for dynamic pricing
 
+
+## rounding
+
+especially in currency, where the division is finite.
+
+ https://stackoverflow.com/questions/45223778/is-bankers-rounding-really-more-numerically-stable
 ## String algorithm
 
 - Boyer Moore (used in grep)
