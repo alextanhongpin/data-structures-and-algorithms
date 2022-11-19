@@ -256,3 +256,52 @@ assert.equal("a1", compressString("a"));
 assert.equal("a2", compressString("aa"));
 assert.equal("a2b2c2", compressString("aabbcc"));
 ```
+
+
+## Check rotation
+
+```js
+const assert = require("assert");
+
+function isSubstring(s1, s2) {
+  if (s1.length !== s2.length) {
+    return false;
+  }
+
+  // Find the possible rotations.
+  for (let i = 0; i < s1.length; i++) {
+    const rotated = s2.slice(i) + s2.slice(0, i);
+    if (s1 === rotated) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+assert.ok(isSubstring("waterbottle", "erbottlewat"), "not a substring");
+assert.ok(isSubstring("haha", "ahah"), "not a substring");
+assert.ok(isSubstring("hah", "hah"), "true if match");
+assert.ok(isSubstring("hah", "hha"), "true if rotate");
+assert.ok(isSubstring("hah", "ahh"), "true if rotate");
+assert.ok(!isSubstring("a", "b"), "not matching");
+assert.ok(!isSubstring("a", ""), "not equal");
+assert.ok(!isSubstring("", ""), "both empty");
+
+function isRotation(s1, s2) {
+  if (s1.length !== s2.length || s1.length === 0) {
+    return false;
+  }
+
+  return (s1 + s1).includes(s2);
+}
+
+assert.ok(isRotation("waterbottle", "erbottlewat"), "not a substring");
+assert.ok(isRotation("haha", "ahah"), "not a substring");
+assert.ok(isRotation("hah", "hah"), "true if match");
+assert.ok(isRotation("hah", "hha"), "true if rotate");
+assert.ok(isRotation("hah", "ahh"), "true if rotate");
+assert.ok(!isRotation("a", "b"), "not matching");
+assert.ok(!isRotation("a", ""), "not equal");
+assert.ok(!isRotation("", ""), "both empty");
+```
