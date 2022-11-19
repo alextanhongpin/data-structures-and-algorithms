@@ -223,3 +223,36 @@ function palindronePermutations(str) {
 
 console.log(palindronePermutations('aabbcadad'))
 ```
+
+## Count compressed string
+
+```js
+const assert = require("assert");
+
+function compressString(str) {
+  const chars = str.split("");
+
+  let result = "";
+  while (chars.length) {
+    const head = chars.shift();
+    let consecutiveCounts = 1;
+    while (chars.length) {
+      const next = chars.shift();
+      if (head === next) {
+        consecutiveCounts++;
+      } else {
+        chars.unshift(next);
+        break;
+      }
+    }
+    result += head + consecutiveCounts.toString();
+  }
+
+  return result;
+}
+
+assert.equal("a2b1c5a3", compressString("aabcccccaaa"));
+assert.equal("a1", compressString("a"));
+assert.equal("a2", compressString("aa"));
+assert.equal("a2b2c2", compressString("aabbcc"));
+```
